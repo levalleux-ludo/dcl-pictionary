@@ -6,7 +6,7 @@ import { filter, first, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 const REALM_NAME = 'localhost-stub';
-const WS = 'ws://127.0.0.1:13370/broadcast';
+const WS = 'ws://192.168.1.11:13370/broadcast';
 
 export enum SocketClientState {
   ATTEMPTING, CONNECTED
