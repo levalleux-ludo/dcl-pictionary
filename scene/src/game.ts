@@ -1,3 +1,5 @@
+import { WhiteBoard } from './WhiteBoard';
+import { WhiteBoardClient, WhiteBoardEvent } from './whiteboard-client';
 /// --- Set up a system ---
 
 class RotatorSystem {
@@ -17,7 +19,7 @@ class RotatorSystem {
 }
 
 // Add a new instance of the system to the engine
-engine.addSystem(new RotatorSystem())
+// engine.addSystem(new RotatorSystem())
 
 /// --- Spawner function ---
 
@@ -49,3 +51,24 @@ cube.addComponent(
     spawnCube(Math.random() * 8 + 1, Math.random() * 8, Math.random() * 8 + 1)
   })
 )
+
+const whiteboardClient = new WhiteBoardClient();
+whiteboardClient.onReady.addListener(WhiteBoardEvent, this, () => {
+  log('whiteboardClient ready');
+})
+
+
+let whiteBoard = new WhiteBoard()
+// box.addComponent(new BoxShape())
+whiteBoard.addComponent(
+  new Transform({
+    position: new Vector3(5, 1, 5),
+    scale: new Vector3(2,2,1)
+  })
+)
+// box.addComponent(new Billboard())
+engine.addEntity(whiteBoard)
+whiteboardClient.onRefreshImage.addListener(WhiteBoardEvent, this, () => {
+  log('whiteboardClient: onRefreshImage');
+  whiteBoard.refreshImage();
+})

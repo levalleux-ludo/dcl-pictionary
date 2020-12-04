@@ -57,6 +57,7 @@ app.use('/image/:room', (req: express.Request, res: express.Response) => {
   const room = `/broadcast/${req.params.room}`;
   const data = images.get(room);
   console.log('GET image', room);
+  console.log('dummy', req.query.dummy);
 
   if (data !== undefined) {
     console.log('send image data');
