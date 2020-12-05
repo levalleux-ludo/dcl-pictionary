@@ -14,7 +14,7 @@ export class WhiteBoard extends Entity {
             new Transform({
                 position: Vector3.Zero(),
                 scale: new Vector3(1,1,0.1)
-            });
+            })
         )
         this.addComponent(new Billboard());
         this.panel.setParent(this);

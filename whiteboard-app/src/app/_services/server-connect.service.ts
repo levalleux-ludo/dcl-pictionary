@@ -4,6 +4,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, Observer, Subject } from 'rxjs';
 import { filter, first, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { WSMessageArgs, eMessages, UpdateImageArgs, StartDrawingArgs } from '../../../../whiteboard-server/src/iserver';
 
 const REALM_NAME = 'localhost-stub';
 const WS = 'ws://192.168.1.11:13370/broadcast';
@@ -81,7 +82,7 @@ export class ServerConnectService implements OnDestroy {
     return this.connect;
   }
 
-  private send(topic: string, payload: any): void {
+  private send(payload: WSMessageArgs): void {
     this.state
       .pipe(first())
       .subscribe(state => {
@@ -96,8 +97,14 @@ export class ServerConnectService implements OnDestroy {
     // });
   }
 
-  public push(id: string, img: string): void {
-    this.send('image', { id, image: img });
+  public updateImage(img: string): void {
+    const args: UpdateImageArgs = {image: img};
+    this.send({realm: `broadcast/${REALM_NAME}`, message: eMessages.updateImage, args});
+  }
+
+  public startDrawing(drawerAddress: string): void {
+    const args: StartDrawingArgs = {drawerAddress};
+    this.send({realm: `broadcast/${REALM_NAME}`, message: eMessages.startDrawing, args});
   }
 
 }

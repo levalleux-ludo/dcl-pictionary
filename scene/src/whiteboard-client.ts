@@ -1,4 +1,5 @@
 import { getCurrentRealm } from "@decentraland/EnvironmentAPI";
+import { WSMessageArgs, eMessages, ImageUpdatedArgs } from '../../whiteboard-server/src/iserver';
 
 const WS = 'ws://127.0.0.1:13370/broadcast';
 
@@ -38,12 +39,24 @@ export class WhiteBoardClient {
     private onmessage(event: MessageEvent) {
         try {
             log(event)
-            const parsed = JSON.parse(event.data)
-            log(parsed)
-            if (parsed.image) {
-              // TODO: get new image and refresh scene
+            const data: WSMessageArgs = JSON.parse(event.data) as WSMessageArgs;
+
+            // if message is roundStarted
+
+
+            // if message is roundFailed
+
+            // if message is roundCompleted
+
+
+            // if message is imageUpdated
+            if (data.message === eMessages.imageUpdated) {
+            // log(parsed)
+            // if (parsed.image) {
+            //   // TODO: get new image and refresh scene
               log('received a new image')
-              this._onRefreshImage.fireEvent(new WhiteBoardEvent(parsed.image))
+              const args: ImageUpdatedArgs = data.args as ImageUpdatedArgs;
+              this._onRefreshImage.fireEvent(new WhiteBoardEvent(args.imageUrl))
             }
           } catch (error) {
             log("ERROR:" + error)

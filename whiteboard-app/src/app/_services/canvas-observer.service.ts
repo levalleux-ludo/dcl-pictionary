@@ -2,6 +2,7 @@ import { ServerConnectService } from './server-connect.service';
 import { IObservableCanvas } from './../_model/iobservable-canvas';
 import { Injectable } from '@angular/core';
 import { convertUpdateArguments } from '@angular/compiler/src/compiler_util/expression_converter';
+import { WSMessageArgs } from '../../../../whiteboard-server/src/iserver';
 
 const PERIOD = 1000; // 1sec
 
@@ -16,7 +17,7 @@ export class CanvasObserverService {
     private serverConnect: ServerConnectService
   ) {
     setInterval(() => {this.capture(); }, PERIOD);
-    this.serverConnect.receive().subscribe((data) => {
+    this.serverConnect.receive().subscribe((data: WSMessageArgs) => {
       console.log('receive data:', JSON.stringify(data));
     });
   }
@@ -36,7 +37,7 @@ export class CanvasObserverService {
     this.observed.forEach((canvas, id) => {
       if (canvas.hasChanged) {
         const img = canvas.getImage();
-        this.serverConnect.push(id, img);
+        this.serverConnect.updateImage(img);
       }
     });
   }
