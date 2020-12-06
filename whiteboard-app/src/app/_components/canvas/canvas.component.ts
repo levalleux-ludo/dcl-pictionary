@@ -1,3 +1,5 @@
+import { first } from 'rxjs/operators';
+import { ServerConnectService } from './../../_services/server-connect.service';
 import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { v4 as uuid } from 'uuid';
@@ -24,11 +26,14 @@ export class CanvasComponent implements OnInit, OnDestroy, IObservableCanvas {
   point: string;
   id;
   _hasChanged = false;
+  words = [];
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
-    private canvasObserver: CanvasObserverService
+    private canvasObserver: CanvasObserverService,
+    private serverConnect: ServerConnectService
   ) { }
+
   get hasChanged(): boolean {
     return this._hasChanged;
   }
@@ -69,6 +74,10 @@ export class CanvasComponent implements OnInit, OnDestroy, IObservableCanvas {
       console.error('canvas element is not defined');
     }
     this.canvasObserver.observe(this.id, this);
+    this.serverConnect.getWords().pipe(first()).subscribe((words) => {
+      console.log('get words', words);
+      this.words = words;
+    })
   }
 
   initCanvasElement(htmlCanvas: HTMLCanvasElement): void {

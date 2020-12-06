@@ -47,7 +47,7 @@ describe('test server class', () => {
             expect(eventArgs.message).to.equal(eMessages.roundStarted);
             done();
         });
-        words = server.getWords(realm1);
+        words = server.getWords(realm1, drawer1Address);
         expect(words.length).to.equal(4);
         console.log(words);
     })

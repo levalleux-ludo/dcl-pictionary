@@ -1,56 +1,10 @@
+import { UIConnectWhiteboard } from './UIConnectWhiteboard';
+import { ePhoneBoxEvents, PhoneBox, PhoneBoxEvent } from './PhoneBox';
+import { PhoneBoxCaption } from './PhoneBoxCaption';
 import { WhiteBoard } from './WhiteBoard';
 import { WhiteBoardClient, WhiteBoardEvent } from './whiteboard-client';
-/// --- Set up a system ---
 
-class RotatorSystem {
-  // this group will contain every entity that has a Transform component
-  group = engine.getComponentGroup(Transform)
-
-  update(dt: number) {
-    // iterate over the entities of the group
-    for (let entity of this.group.entities) {
-      // get the Transform component of the entity
-      const transform = entity.getComponent(Transform)
-
-      // mutate the rotation
-      transform.rotate(Vector3.Up(), dt * 10)
-    }
-  }
-}
-
-// Add a new instance of the system to the engine
-// engine.addSystem(new RotatorSystem())
-
-/// --- Spawner function ---
-
-function spawnCube(x: number, y: number, z: number) {
-  // create the entity
-  const cube = new Entity()
-
-  // add a transform to the entity
-  cube.addComponent(new Transform({ position: new Vector3(x, y, z) }))
-
-  // add a shape to the entity
-  cube.addComponent(new BoxShape())
-
-  // add the entity to the engine
-  engine.addEntity(cube)
-
-  return cube
-}
-
-/// --- Spawn a cube ---
-
-const cube = spawnCube(8, 1, 8)
-
-cube.addComponent(
-  new OnClick(() => {
-    cube.getComponent(Transform).scale.z *= 1.1
-    cube.getComponent(Transform).scale.x *= 0.9
-
-    spawnCube(Math.random() * 8 + 1, Math.random() * 8, Math.random() * 8 + 1)
-  })
-)
+const gameCanvas = new UICanvas();
 
 const whiteboardClient = new WhiteBoardClient();
 whiteboardClient.onReady.addListener(WhiteBoardEvent, this, () => {
@@ -136,14 +90,24 @@ nelson.addComponent(new Transform({
 }))
 engine.addEntity(nelson);
 
-const phonebox = new Entity();
-phonebox.addComponent(new GLTFShape('models/phonebox.gltf'));
+const uIConnectWhiteboard = new UIConnectWhiteboard(gameCanvas);
+
+const phonebox = new PhoneBox();
 phonebox.addComponent(new Transform({
-  position: new Vector3(1,0,16),
-  scale: new Vector3(4.5,4.5,4.5),
+  position: new Vector3(17.5,0.08,17),
+  scale: new Vector3(4.5,5.5,4.5),
   rotation: Quaternion.Euler(0, 0, 0)
 }))
 engine.addEntity(phonebox);
+phonebox.events.addListener(PhoneBoxEvent, this, (e) => {
+  log('PhoneBoxEvent', e);
+  if (e.event === ePhoneBoxEvents.CameraEnter) {
+    // uIConnectWhiteboard.setVisible(true);
+  } else if (e.event === ePhoneBoxEvents.CameraExit) {
+    // uIConnectWhiteboard.setVisible(false);
+  }
+})
+
 
 // const drama = new Entity();
 // drama.addComponent(new GLTFShape('models/drama.gltf'));
@@ -189,3 +153,4 @@ pavement.addComponent(new Transform({
   rotation: Quaternion.Euler(0, 0, 0)
 }))
 engine.addEntity(pavement);
+

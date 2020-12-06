@@ -1,4 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 // import { RxStompService } from '@stomp/ng2-stompjs';
 // import { RxStompState } from '@stomp/rx-stomp';
 import { BehaviorSubject, Observable, Observer, Subject } from 'rxjs';
@@ -6,8 +8,9 @@ import { filter, first, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { WSMessageArgs, eMessages, UpdateImageArgs, StartDrawingArgs } from '../../../../whiteboard-server/src/iserver';
 
-const REALM_NAME = 'localhost-stub';
-const WS = 'ws://192.168.1.11:13370/broadcast';
+// const REALM_NAME = 'localhost-stub';
+const WS = 'ws://192.168.1.11:13370';
+const HTTP = 'http://192.168.1.11:80';
 
 export enum SocketClientState {
   ATTEMPTING, CONNECTED
@@ -22,21 +25,15 @@ export class ServerConnectService implements OnDestroy {
   private bs: BehaviorSubject<MessageEvent>;
   private ws: WebSocket;
   private connect: Observable<WebSocket>;
+  private realm = 'unknown_realm';
+  private userAddress = 'unknown_address';
 
   constructor(
     // private rxStompService: RxStompService
+    private route: ActivatedRoute,
+    private http: HttpClient
   ) {
     this.state = new BehaviorSubject<SocketClientState>(SocketClientState.ATTEMPTING);
-    this.ws = new WebSocket(`${WS}/${REALM_NAME}`);
-    this.connect = new Observable((obs: Observer<WebSocket>) => {
-      this.ws.onopen = () => {
-        this.state.next(SocketClientState.CONNECTED);
-      }
-      this.ws.onmessage = obs.next.bind(obs);
-      this.ws.onerror = obs.error.bind(obs);
-      this.ws.onclose = obs.complete.bind(obs);
-      return this.ws.close.bind(this.ws);
-    });
     // this.rxStompService.connectionState$.subscribe(state => {
     //   // state is an Enum (Integer), StompState[state] is the corresponding string
     //   console.log(RxStompState[state]);
@@ -44,6 +41,28 @@ export class ServerConnectService implements OnDestroy {
     //     this.state.next(SocketClientState.CONNECTED);
     //   }
     // });
+    this.route.queryParams.pipe(first()).subscribe((params) => {
+      console.log('routeParams', params);
+      if (params.realm === undefined) {
+        throw new Error('query params realm must be specified');
+      }
+      if (params.userId === undefined) {
+        throw new Error('query params userId must be specified');
+      }
+      this.realm = params.realm;
+      this.userAddress = params.userId;
+      this.ws = new WebSocket(`${WS}/${this.realm}?userId=${this.userAddress}`);
+      // this.ws = new WebSocket(`${WS}/${this.realm}?user=${this.userAddress}`);
+      this.connect = new Observable((obs: Observer<WebSocket>) => {
+        this.ws.onopen = () => {
+          this.state.next(SocketClientState.CONNECTED);
+        }
+        this.ws.onmessage = obs.next.bind(obs);
+        this.ws.onerror = obs.error.bind(obs);
+        this.ws.onclose = obs.complete.bind(obs);
+        return this.ws.close.bind(this.ws);
+      });
+    })
 
   }
 
@@ -99,12 +118,20 @@ export class ServerConnectService implements OnDestroy {
 
   public updateImage(img: string): void {
     const args: UpdateImageArgs = {image: img};
-    this.send({realm: `broadcast/${REALM_NAME}`, message: eMessages.updateImage, args});
+    this.send({realm: `${this.realm}`, message: eMessages.updateImage, args});
   }
 
-  public startDrawing(drawerAddress: string): void {
-    const args: StartDrawingArgs = {drawerAddress};
-    this.send({realm: `broadcast/${REALM_NAME}`, message: eMessages.startDrawing, args});
+  public startDrawing(): void {
+    const args: StartDrawingArgs = {drawerAddress: this.userAddress};
+    this.send({realm: `${this.realm}`, message: eMessages.startDrawing, args});
+  }
+
+  public getWords(): Observable<string[]> {
+    return this.http.get<string[]>(
+      `${HTTP}/${this.realm}/words`,
+      { params: {
+        drawer: this.userAddress
+      }});
   }
 
 }

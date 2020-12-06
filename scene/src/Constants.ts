@@ -1,0 +1,4 @@
+export const WHITEBOARD_SERVER_HOST = '192.168.1.11';
+export const WHITEBOARD_WS = `ws://${WHITEBOARD_SERVER_HOST}:13370`;
+export const WHITEBOARD_HTTP = `http://${WHITEBOARD_SERVER_HOST}:80`;
+export const WHITEBOARD_APP_URL = 'http://192.168.1.11:4200';

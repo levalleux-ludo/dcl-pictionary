@@ -42,12 +42,32 @@ interface customWs extends WebSocket {
 
 wss.on("connection", (clientWs, request) => {
   const ws = clientWs as customWs;
-  ws.room = request.url || "";
+  const urlParams = /^\/([^?]*)\??(.*)$/.exec(request.url || '');
+  console.log('urlParams', urlParams);
+  if (!urlParams) {
+    console.error('Unable to get realm from websocket url');
+    return;
+  }
+  ws.room = urlParams[1];
   console.log("connection on", ws.room)
-  // TODO find userName and userAddress
-  const userName = "unknown_user";
-  const userAddress = "unknown_address";
-  server.connect(ws.room, userName, userAddress)
+  const queryParams = urlParams[2];
+  const userIdQuery = /(^|&)userId=([^&]*)/.exec(queryParams);
+  console.log('userIdQuery', userIdQuery)
+  if (!userIdQuery) {
+    console.error('Unable to get userId from websocket url');
+    return;
+  }
+  const userAddress = userIdQuery[2];
+  const userNameQuery = /(^|&)userName=([^&]*)/.exec(queryParams);
+  console.log('userNameQuery', userIdQuery)
+  if (userNameQuery) {
+    // Connection from the DCL scene
+    const userName = userNameQuery[2];
+    server.connect(ws.room, userName, userAddress)
+  } else {
+    // Connection from the Whiteboard app
+  }
+  // server.connect(ws.room)
 
   ws.on('open', () => {
     console.log('opened connection with url:' + ws.url);
@@ -59,23 +79,38 @@ wss.on("connection", (clientWs, request) => {
 
   ws.on('close', () => {
     console.log('closed connection with url:' + ws.url);
-    server.disconnect(userAddress);
+    try {
+      server.disconnect(userAddress);
+    } catch (e) {
+      console.error(e);
+    }
   })
 
   ws.on("message", function incoming(dataStr) {
 
     const data: WSMessageArgs = JSON.parse(dataStr as string) as WSMessageArgs;
     data.realm = ws.room;
+    console.log('received message', data.message);
     // if message is 'startDrawing'
     if (data.message === eMessages.startDrawing) {
       const args: StartDrawingArgs = data.args as StartDrawingArgs;
-      server.startDrawing(ws.room, args.drawerAddress);
+      try {
+        server.startDrawing(ws.room, args.drawerAddress);
+      } catch (e) {
+        console.error(e);
+      }
+ 
     }
 
     // if message is 'updateImage'
     if (data.message === eMessages.updateImage) {
       const args: UpdateImageArgs = data.args as UpdateImageArgs;
-      server.updateImage(ws.room, args.image)
+      try {
+        server.updateImage(ws.room, args.image)
+      } catch (e) {
+        console.error(e);
+      }
+  
     }
 
     // console.log("received message");
@@ -98,7 +133,7 @@ wss.once("listening", ()=>{
 })
 
 app.use('/image/:room', (req: express.Request, res: express.Response) => {
-  const room = `/broadcast/${req.params.room}`;
+  const room = `${req.params.room}`;
   // const data = images.get(room);
   const data = server.getImage(room);
   console.log('GET image', room);
@@ -119,7 +154,7 @@ app.use('/image/:room', (req: express.Request, res: express.Response) => {
 });
 
 app.use('/check/:room', (req: express.Request, res: express.Response) => {
-  const realm = `/broadcast/${req.params.room}`;
+  const realm = `${req.params.room}`;
   const word = req.query.word as string;
   if (!word) {
     res.sendStatus(400);
@@ -130,7 +165,7 @@ app.use('/check/:room', (req: express.Request, res: express.Response) => {
 });
 
 app.use('/submit/:room', (req: express.Request, res: express.Response) => {
-  const realm = `/broadcast/${req.params.room}`;
+  const realm = `${req.params.room}`;
   const word = req.query.word as string;
   const user = req.query.user as string;
   if (!word || !user) {
@@ -141,8 +176,35 @@ app.use('/submit/:room', (req: express.Request, res: express.Response) => {
   }
 });
 
+app.use('/whiteboard/:room/qrcode', (req: express.Request, res: express.Response) => {
+  const room = `${req.params.room}`;
+  server.getQrCode(room).then(data => {
+    if (data !== undefined) {
+      console.log('send QrCode image data');
+      const im = data.split(",")[1];
+      var img = Buffer.from(im, 'base64');
+      res.writeHead(200, {
+        'Content-Type': 'image/png',
+        'Content-Length': img.length
+      });
+      res.end(img);
+    } else {
+      res.sendStatus(200);
+    }
+  }).catch(e => {
+    console.error(e);
+    res.sendStatus(500);
+  });
+});
+
+app.use('/:room/words', (req: express.Request, res: express.Response) => {
+  const room = `${req.params.room}`;
+  const drawerAddress = req.query.drawer;
+  res.send(server.getWords(room, drawerAddress as string));
+});
+
 app.use('/:room', (req: express.Request, res: express.Response) => {
-  const room = `/broadcast/${req.params.room}`;
+  const room = `${req.params.room}`;
   console.log('GET page', room, req.baseUrl, req.hostname, req.url);
   const img_url = `${req.protocol}://${req.hostname}/image/${req.params.room}`
 
@@ -150,6 +212,7 @@ app.use('/:room', (req: express.Request, res: express.Response) => {
   console.log('send page', page);
   res.send(page);
 });
+
 
 const port = 80;
 app.listen(port, () => {

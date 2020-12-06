@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { User, eUserEvents } from './user';
 import { Realm, eRealmEvent, WordFoundArgs } from './realm';
 import  * as randomWords from 'random-words';
+import QRCode from 'qrcode'
 import { eMessages, WSMessageArgs, eServerEvents } from './iserver';
 
 
@@ -28,11 +29,13 @@ export class Server extends EventEmitter {
             throw new Error('Unable to find the user with address ' + userAddress);
         }
         const user = this.users.get(userAddress);
+        console.log('delete user with address', userAddress);
         this.users.delete(userAddress);
         user?.disconnect();
     }
 
     public startDrawing(realmName: string, drawerAddress: string) {
+        console.log('startDrawing', realmName, drawerAddress);
         if (!this.realms.has(realmName)) {
             throw new Error('UNable to find the realm with name ' + realmName);
         }
@@ -50,13 +53,16 @@ export class Server extends EventEmitter {
         }
     }
 
-    public getWords(realmName: string): string[] {
+    public getWords(realmName: string, drawerAddress: string): string[] {
         if (!this.realms.has(realmName)) {
             throw new Error('UNable to find the realm with name ' + realmName);
         }
         const realm = this.realms.get(realmName) as Realm;
         realm.words = randomWords.default(4) as string[];
-        const drawerAddress = realm.drawerAddress;
+        if(drawerAddress !== realm.drawerAddress) {
+            console.error(`Unexpected request of word (drawer=${drawerAddress}, realm=${realmName}, realm.drawer=${realm.drawerAddress})`);
+            return [];
+        }
         if (!drawerAddress) {
             throw new Error('There is no drawer registered for the current realm' + realmName);
         }
@@ -105,6 +111,15 @@ export class Server extends EventEmitter {
         }
         const realm = this.realms.get(realmName) as Realm;
         return realm.image as string;
+    }
+
+    public async getQrCode(realmName: string): Promise<string> {
+        if (!this.realms.has(realmName)) {
+            throw new Error('UNable to find the realm with name ' + realmName);
+        }
+        const realm = this.realms.get(realmName) as Realm;
+        const url = 'http://192.168.1.11:4200/canvas';
+        return QRCode.toDataURL(url);
     }
 
     public checkWord(realmName: string, word: string): boolean {

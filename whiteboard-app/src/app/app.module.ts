@@ -7,16 +7,22 @@ import { CanvasComponent } from './_components/canvas/canvas.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { InjectableRxStompConfig, RxStompService, rxStompServiceFactory } from '@stomp/ng2-stompjs';
 import { myRxStompConfig } from './my-rx-stomp.config';
+import { StartPageComponent } from './_components/start-page/start-page.component';
+import { WordsListComponent } from './_components/words-list/words-list.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CanvasComponent
+    CanvasComponent,
+    StartPageComponent,
+    WordsListComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    HttpClientModule
   ],
   providers: [
     // {

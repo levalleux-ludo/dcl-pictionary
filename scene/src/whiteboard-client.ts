@@ -1,7 +1,8 @@
 import { getCurrentRealm } from "@decentraland/EnvironmentAPI";
+import { getUserData  } from "@decentraland/Identity"
 import { WSMessageArgs, eMessages, ImageUpdatedArgs } from '../../whiteboard-server/src/iserver';
 
-const WS = 'ws://127.0.0.1:13370/broadcast';
+const WS = 'ws://127.0.0.1:13370';
 
 
 @EventConstructor()
@@ -15,17 +16,20 @@ export class WhiteBoardClient {
     socket;
     _onReady: EventManager = new EventManager();
     _onRefreshImage: EventManager = new EventManager();
+
     constructor() {
+      getUserData ().then((userData) => {
         getCurrentRealm().then((realm) => {
-            log(`You are in the realm: `, realm.displayName)
-            // connect to ws server
-            this.socket = new WebSocket(`${WS}/${realm.displayName}`)
-            this.socket.onopen = () => {
-                this.isReady = true;
-                this._onReady.fireEvent(new WhiteBoardEvent(this.isReady));
-            };
-            this.socket.onmessage = (e) => {this.onmessage(e);};
+          log(`You are in the realm: `, realm.displayName)
+          // connect to ws server
+          this.socket = new WebSocket(`${WS}/${realm.displayName}?userId=${userData.userId}&userName=${userData.displayName}`)
+          this.socket.onopen = () => {
+              this.isReady = true;
+              this._onReady.fireEvent(new WhiteBoardEvent(this.isReady));
+          };
+          this.socket.onmessage = (e) => {this.onmessage(e);};
         })
+      })
     }
 
     public get onReady(): EventManager {
