@@ -4,6 +4,7 @@ import { Realm, eRealmEvent, WordFoundArgs } from './realm';
 import  * as randomWords from 'random-words';
 import QRCode from 'qrcode'
 import { eMessages, WSMessageArgs, eServerEvents } from './iserver';
+import { WHITEBOARD_APP_URL } from './config';
 
 
 export class Server extends EventEmitter {
@@ -72,6 +73,7 @@ export class Server extends EventEmitter {
         }
         this.sendMessage({realm: realmName, message: eMessages.roundStarted, args: { drawerName: drawer.name, drawerAddress , timeoutSec: 30 }});
         const roundTimer = setTimeout(() => {
+            console.log('timeout expired');
             this.sendMessage({realm: realmName, message: eMessages.roundFailed, args: {words: realm.words}});
         }, (30000));
         realm.on(eRealmEvent.wordFound, (wordFoundArgs: WordFoundArgs) => {
@@ -113,12 +115,17 @@ export class Server extends EventEmitter {
         return realm.image as string;
     }
 
-    public async getQrCode(realmName: string): Promise<string> {
+    public async getQrCode(realmName: string, userId: string): Promise<string> {
         if (!this.realms.has(realmName)) {
             throw new Error('UNable to find the realm with name ' + realmName);
         }
+        if (!this.users.has(userId)) {
+            throw new Error('Unable to find the user with id' + userId);
+        }
         const realm = this.realms.get(realmName) as Realm;
-        const url = 'http://192.168.1.11:4200/canvas';
+        const user = this.users.get(userId) as User;
+        // example http://192.168.1.11:4200?realm=localhost-stub&userId=0xe73f406ee21babf3752ce02106080ea03bd043f7&userName=Hayden-e73f40
+        const url = `${WHITEBOARD_APP_URL}?realm=${realmName}&userId=${user.address}&userName=${user.name}`;
         return QRCode.toDataURL(url);
     }
 

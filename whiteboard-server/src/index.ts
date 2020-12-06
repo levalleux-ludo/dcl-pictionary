@@ -178,7 +178,13 @@ app.use('/submit/:room', (req: express.Request, res: express.Response) => {
 
 app.use('/whiteboard/:room/qrcode', (req: express.Request, res: express.Response) => {
   const room = `${req.params.room}`;
-  server.getQrCode(room).then(data => {
+  const userId = req.query.userId as string;
+  if (!userId) {
+    console.error('missing userId in query parameters');
+    res.sendStatus(400);
+    return;
+  }
+  server.getQrCode(room, userId).then(data => {
     if (data !== undefined) {
       console.log('send QrCode image data');
       const im = data.split(",")[1];
