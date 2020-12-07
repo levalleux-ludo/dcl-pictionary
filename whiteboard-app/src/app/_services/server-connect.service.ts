@@ -9,8 +9,8 @@ import { environment } from 'src/environments/environment';
 import { WSMessageArgs, eMessages, UpdateImageArgs, StartDrawingArgs } from '../../../../whiteboard-server/src/iserver';
 
 // const REALM_NAME = 'localhost-stub';
-const WS = 'ws://192.168.1.11:13370';
-const HTTP = 'http://192.168.1.11:80';
+const WS = environment.ws_url;
+const HTTP = environment.http_url;
 
 export enum SocketClientState {
   ATTEMPTING, CONNECTED
