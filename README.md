@@ -1,19 +1,31 @@
 # Welcome to Decentraland Pictionary Circus
 
+![Pictionary Circus](/scene/images/pictionary_circus.png)
+
 ## The scene allows several players (connected to the same realm) to play the Pictionary game together.
+
+![enter_phonebox](/snapshots/enter_phonebox.png)
 
 ### How to draw
 
 The first player must enter the phonebox at the center of the scene.
 Here is a Link to a Whiteboard application. He can choose to launch it on its desktop or his mobile (using the QRCode).
 
+![phonebox_link](/snapshots/phonebox_link.png)
+
 On the whiteboard app, the drawer click Start when he's ready to draw
 On the new page, a list of 4 words.
 The player choose one of them and try to draw it on the drawing area.
 
+![whiteboard_draw](/snapshots/whiteboard_draw.png)
+
 In real time the drawing is refreshed on the building of the Pictionary Circus scene, so that the other player can guess the word the drawer is trying to draw.
 
+![submit_word](/snapshots/submit_word.png)
+
 ### Submit a word
+
+![congratulations_claimNFT](/snapshots/congratulations_claimNFT.png)
 
 When a player think he has found the word, he can submit it through the UI
 If he's right, he wins the round.
