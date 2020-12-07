@@ -30,26 +30,26 @@ const server = new Server();
 server.on(eServerEvents.sendMessage, (args: WSMessageArgs) => {
   // dispatch the message to all clients of the same room/realm
   wss.clients.forEach(function each(client) {
-    const cWs = client as customWs;
-    if (cWs.readyState === WebSocket.OPEN && cWs.room === args.realm) {
+    const cWs = client as RealmWS;
+    if (cWs.readyState === WebSocket.OPEN && cWs.realm === args.realm) {
       cWs.send(JSON.stringify({message: args.message, args: args.args}));
     }
   });
 });
-interface customWs extends WebSocket {
-  room: string;
+export interface RealmWS extends WebSocket {
+  realm: string;
 }
 
 wss.on("connection", (clientWs, request) => {
-  const ws = clientWs as customWs;
+  const ws = clientWs as RealmWS;
   const urlParams = /^\/([^?]*)\??(.*)$/.exec(request.url || '');
   console.log('urlParams', urlParams);
   if (!urlParams) {
     console.error('Unable to get realm from websocket url');
     return;
   }
-  ws.room = urlParams[1];
-  console.log("connection on", ws.room)
+  ws.realm = urlParams[1];
+  console.log("connection on", ws.realm)
   const queryParams = urlParams[2];
   const userIdQuery = /(^|&)userId=([^&]*)/.exec(queryParams);
   console.log('userIdQuery', userIdQuery)
@@ -60,14 +60,17 @@ wss.on("connection", (clientWs, request) => {
   const userAddress = userIdQuery[2];
   const userNameQuery = /(^|&)userName=([^&]*)/.exec(queryParams);
   console.log('userNameQuery', userIdQuery)
+  let realm;
   if (userNameQuery) {
     // Connection from the DCL scene
     const userName = userNameQuery[2];
-    server.connect(ws.room, userName, userAddress)
+    realm = server.connect(ws.realm, userName, userAddress)
   } else {
     // Connection from the Whiteboard app
+    realm = server.connect(ws.realm)
   }
-  // server.connect(ws.room)
+
+  server.sendStatus(ws);
 
   ws.on('open', () => {
     console.log('opened connection with url:' + ws.url);
@@ -89,13 +92,13 @@ wss.on("connection", (clientWs, request) => {
   ws.on("message", function incoming(dataStr) {
 
     const data: WSMessageArgs = JSON.parse(dataStr as string) as WSMessageArgs;
-    data.realm = ws.room;
+    data.realm = ws.realm;
     console.log('received message', data.message);
     // if message is 'startDrawing'
     if (data.message === eMessages.startDrawing) {
       const args: StartDrawingArgs = data.args as StartDrawingArgs;
       try {
-        server.startDrawing(ws.room, args.drawerAddress);
+        server.startDrawing(ws.realm, args.drawerAddress);
       } catch (e) {
         console.error(e);
       }
@@ -106,7 +109,7 @@ wss.on("connection", (clientWs, request) => {
     if (data.message === eMessages.updateImage) {
       const args: UpdateImageArgs = data.args as UpdateImageArgs;
       try {
-        server.updateImage(ws.room, args.image)
+        server.updateImage(ws.realm, args.image)
       } catch (e) {
         console.error(e);
       }
@@ -115,13 +118,13 @@ wss.on("connection", (clientWs, request) => {
 
     // console.log("received message");
     // if ((data as any).image) {
-    //   console.log('set image', ws.room);
-    //   images.set(ws.room, (data as any).image);
+    //   console.log('set image', ws.realm);
+    //   images.set(ws.realm, (data as any).image);
     // }
     wss.clients.forEach(function each(client) {
-      const cWs = client as customWs;
+      const cWs = client as RealmWS;
 
-      if (cWs.readyState === WebSocket.OPEN && cWs.room === ws.room) {
+      if (cWs.readyState === WebSocket.OPEN && cWs.realm === ws.realm) {
         cWs.send(dataStr);
       }
     });
@@ -159,7 +162,7 @@ app.use('/check/:room', (req: express.Request, res: express.Response) => {
   if (!word) {
     res.sendStatus(400);
   } else {
-    const checkResult = server.checkWord(realm, word);
+    const checkResult = server.checkWord(realm, decodeURI(word));
     res.send({word, checkResult});
   }
 });
@@ -167,11 +170,11 @@ app.use('/check/:room', (req: express.Request, res: express.Response) => {
 app.use('/submit/:room', (req: express.Request, res: express.Response) => {
   const realm = `${req.params.room}`;
   const word = req.query.word as string;
-  const user = req.query.user as string;
-  if (!word || !user) {
+  const userId = req.query.userId as string;
+  if (!word || !userId) {
     res.sendStatus(400);
   } else {
-    const checkResult = server.submitWord(realm, user, word);
+    const checkResult = server.submitWord(realm, userId, word);
     res.send({word, checkResult});
   }
 });

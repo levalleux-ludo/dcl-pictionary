@@ -1,5 +1,6 @@
+import { stateManager, StateEvent, eState } from './StateManager';
 import { getCurrentRealm } from '@decentraland/EnvironmentAPI';
-import { WHITEBOARD_APP_URL, WHITEBOARD_APP_QRCODE_URL } from './Constants';
+import { WHITEBOARD_APP_URL } from './Constants';
 import utils from "../node_modules/decentraland-ecs-utils/index"
 import { PhoneBoxCaption } from "./PhoneBoxCaption";
 import { getAppUrl, getHTTPUrl, parseURL } from "./Utils";
@@ -16,11 +17,12 @@ export class PhoneBoxEvent {
 
 export class PhoneBox extends Entity {
     public events = new EventManager();
+    phoneBoxCaption: PhoneBoxCaption;
     constructor() {
         super();
         this.addComponent(new GLTFShape('models/phonebox.gltf'));
-        const phoneBoxCaption = new PhoneBoxCaption();
-        phoneBoxCaption.spawn(this, new Transform({position: new Vector3(0,0.8,0)}));
+        this.phoneBoxCaption = new PhoneBoxCaption();
+        this.phoneBoxCaption.spawn(this, new Transform({position: new Vector3(0,0.8,0)}));
 
         // create trigger area object, setting size and relative position
         let triggerBox = new utils.TriggerBoxShape(new Vector3(1,2,1), Vector3.Up())
@@ -95,5 +97,40 @@ export class PhoneBox extends Entity {
             rotation: Quaternion.Euler(0,90,0)
         }))
     
+        stateManager.onChange.addListener(StateEvent, this, (event) => {
+            switch (event.newState.value) {
+                case eState.NO_DRAWER: {
+                    this.phoneBoxCaption.show();
+                    break;
+                }
+                case eState.DRAWER: {
+                    this.phoneBoxCaption.hide();
+                    break;
+                }
+                case eState.DRAWING: {
+                    this.phoneBoxCaption.hide();
+                    break;
+                }
+                case eState.GUESSING: {
+                    this.phoneBoxCaption.hide();
+                    break;
+                }
+                case eState.TIMEDOUT: {
+                    this.phoneBoxCaption.show();
+                    break;
+                }
+                case eState.WINNER: {
+                    this.phoneBoxCaption.show();
+                    break;
+                }
+                case eState.OTHER_WINNER: {
+                    this.phoneBoxCaption.show();
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        })
     }
 }

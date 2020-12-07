@@ -1,3 +1,4 @@
+import { RealmWS } from './index';
 import { EventEmitter } from 'events';
 import { User, eUserEvents } from './user';
 import { Realm, eRealmEvent, WordFoundArgs } from './realm';
@@ -15,14 +16,17 @@ export class Server extends EventEmitter {
         super();
     }
 
-    public connect(realmName: string, userName: string, userAddress: string) {
+    public connect(realmName: string, userName?: string, userAddress?: string): Realm {
         let realm = this.realms.get(realmName) as Realm;
         if (!realm) {
             realm = new Realm(realmName);
             this.realms.set(realmName, realm);
         }
-        const user = new User(userName, userAddress, realm);
-        this.users.set(userAddress, user);
+        if (userAddress && userName) {
+            const user = new User(userName, userAddress, realm);
+            this.users.set(userAddress, user);
+        }
+        return realm;
     }
 
     public disconnect(userAddress: string) {
@@ -40,17 +44,18 @@ export class Server extends EventEmitter {
         if (!this.realms.has(realmName)) {
             throw new Error('UNable to find the realm with name ' + realmName);
         }
+        const realm = this.realms.get(realmName) as Realm;
         if (!this.users.has(drawerAddress)) {
             throw new Error('Unable to find the user with address ' + drawerAddress);
         }
-        (this.realms.get(realmName) as Realm).drawerAddress = drawerAddress;
-        const drawer = this.users.get(drawerAddress);
+        const drawer = this.users.get(drawerAddress) as User;
+        realm.drawer = drawer;
         drawer?.on(eUserEvents.disconnect, () => {this.stopDrawing(realmName, drawerAddress)});
     }
 
     private stopDrawing(realmName: string, drawerAddress: string) {
-        if ((this.realms.get(realmName) as Realm).drawerAddress === drawerAddress) {
-            (this.realms.get(realmName) as Realm).drawerAddress = undefined;
+        if ((this.realms.get(realmName) as Realm).drawer?.address === drawerAddress) {
+            (this.realms.get(realmName) as Realm).drawer = undefined;
         }
     }
 
@@ -60,8 +65,8 @@ export class Server extends EventEmitter {
         }
         const realm = this.realms.get(realmName) as Realm;
         realm.words = randomWords.default(4) as string[];
-        if(drawerAddress !== realm.drawerAddress) {
-            console.error(`Unexpected request of word (drawer=${drawerAddress}, realm=${realmName}, realm.drawer=${realm.drawerAddress})`);
+        if(drawerAddress !== realm.drawer?.address) {
+            console.error(`Unexpected request of word (drawer=${drawerAddress}, realm=${realmName}, realm.drawer=${realm.drawer?.address})`);
             return [];
         }
         if (!drawerAddress) {
@@ -74,7 +79,8 @@ export class Server extends EventEmitter {
         this.sendMessage({realm: realmName, message: eMessages.roundStarted, args: { drawerName: drawer.name, drawerAddress , timeoutSec: 30 }});
         const roundTimer = setTimeout(() => {
             console.log('timeout expired');
-            this.sendMessage({realm: realmName, message: eMessages.roundFailed, args: {words: realm.words}});
+            // this.stopDrawing(realmName, drawer.address);
+            // this.sendMessage({realm: realmName, message: eMessages.roundFailed, args: {words: realm.words}});
         }, (30000));
         realm.on(eRealmEvent.wordFound, (wordFoundArgs: WordFoundArgs) => {
             console.log('Server: received wordFound', wordFoundArgs)
@@ -84,6 +90,7 @@ export class Server extends EventEmitter {
             if (!winner) {
                 throw new Error('Unable to find the user with address ' + winnerAddress);
             }
+            this.stopDrawing(realmName, drawer.address);
             this.sendMessage({
                 realm: realmName,
                 message: eMessages.roundCompleted,
@@ -98,13 +105,21 @@ export class Server extends EventEmitter {
         this.emit(eServerEvents.sendMessage, eventArgs);
     }
 
+    public sendStatus(ws: RealmWS) {
+        const realm = this.realms.get(ws.realm) as Realm;
+        if (!realm) {
+            throw new Error('UNable to find the realm with name ' + ws.realm);
+        }
+        this.sendMessage({realm: ws.realm, message: eMessages.realmStatus, args: realm.getStatus()})
+    }
+
     public updateImage(realmName: string, image: string) {
         if (!this.realms.has(realmName)) {
             throw new Error('UNable to find the realm with name ' + realmName);
         }
         const realm = this.realms.get(realmName) as Realm;
         realm.image = image;
-        this.sendMessage({realm: realmName, message: eMessages.imageUpdated, args: {imageUrl: `/image/${realmName}`}});
+        this.sendMessage({realm: realmName, message: eMessages.imageUpdated, args: {imageUrl: realm.getImageUrl()}});
     }
 
     public getImage(realmName: string): string {

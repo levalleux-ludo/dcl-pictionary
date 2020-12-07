@@ -1,12 +1,13 @@
+import { eState, stateManager } from './StateManager';
+import { UIManager } from './UIManager';
 import { UIConnectWhiteboard } from './UIConnectWhiteboard';
 import { ePhoneBoxEvents, PhoneBox, PhoneBoxEvent } from './PhoneBox';
 import { PhoneBoxCaption } from './PhoneBoxCaption';
 import { WhiteBoard } from './WhiteBoard';
-import { WhiteBoardClient, WhiteBoardEvent } from './whiteboard-client';
+import { whiteboardClient, WhiteBoardEvent } from './whiteboard-client';
 
 const gameCanvas = new UICanvas();
 
-const whiteboardClient = new WhiteBoardClient();
 whiteboardClient.onReady.addListener(WhiteBoardEvent, this, () => {
   log('whiteboardClient ready');
 })
@@ -22,9 +23,9 @@ whiteBoard.addComponent(
 )
 // box.addComponent(new Billboard())
 engine.addEntity(whiteBoard)
-whiteboardClient.onRefreshImage.addListener(WhiteBoardEvent, this, (imageUrl) => {
+whiteboardClient.onRefreshImage.addListener(WhiteBoardEvent, this, (event) => {
   log('whiteboardClient: onRefreshImage');
-  whiteBoard.refreshImage();
+  whiteBoard.refreshImage(event.payload);
 })
 
 // const harvey_Nichols = new Entity();
@@ -103,8 +104,14 @@ phonebox.events.addListener(PhoneBoxEvent, this, (e) => {
   log('PhoneBoxEvent', e);
   if (e.event === ePhoneBoxEvents.CameraEnter) {
     // uIConnectWhiteboard.setVisible(true);
+    if (stateManager.state.value === eState.NO_DRAWER) {
+      stateManager.setState(eState.DRAWER);
+    }
   } else if (e.event === ePhoneBoxEvents.CameraExit) {
     // uIConnectWhiteboard.setVisible(false);
+    if (stateManager.state.value === eState.DRAWER) {
+      stateManager.setState(eState.NO_DRAWER);
+    }
   }
 })
 
@@ -154,3 +161,6 @@ pavement.addComponent(new Transform({
 }))
 engine.addEntity(pavement);
 
+const uiManager = new UIManager(gameCanvas);
+
+stateManager.raiseEvent();
