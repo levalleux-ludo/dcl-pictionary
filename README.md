@@ -19,5 +19,23 @@ When a player think he has found the word, he can submit it through the UI
 If he's right, he wins the round.
 He can claim an NFT (non fungible token) that represents the drawned image.
 
+## Architecture
+### Smart Contracts
 
+The scene interacts with 2 smart contracts:
+- DCLPictionaryNFT is the NFT contract (ERC721 compatible) that manages the NFT given to the winners
+- DCLPictionary is the master contract that mints the NFT and give them to the winners.
+
+### Other components
+
+#### Whiteboard App
+
+A web app that allow the drawer to draw
+#### Whiteboard Server
+
+The scene interacts with a Websocket/HTTP server that is sharing data across the players of the same realm, and communicate with the whiteboard application.
+
+#### NFT Server
+
+Publish the NFT metadata and images
 

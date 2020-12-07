@@ -38,6 +38,9 @@ class WhiteBoardClient {
 
     public async initialize() {
       await getUserData ().then((userData) => {
+        if (!userData) {
+          throw new Error('userData is not ready yet');
+        }
         this.address = userData.userId;
       });
       await getWSUrl().then((url) => {

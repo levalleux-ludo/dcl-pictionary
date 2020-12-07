@@ -7,6 +7,7 @@ import { ePhoneBoxEvents, PhoneBox, PhoneBoxEvent } from './PhoneBox';
 import { PhoneBoxCaption } from './PhoneBoxCaption';
 import { WhiteBoard } from './WhiteBoard';
 import { whiteboardClient, WhiteBoardEvent } from './whiteboard-client';
+import { Sign } from "./Sign";
 
 const gameCanvas = new UICanvas();
 
@@ -79,8 +80,8 @@ engine.addEntity(whiteBoard)
 const nelson = new Entity();
 nelson.addComponent(new GLTFShape('models/nelson.gltf'));
 nelson.addComponent(new Transform({
-  position: new Vector3(1,0,18),
-  scale: new Vector3(10,10,10),
+  position: new Vector3(5,0,17.5),
+  scale: new Vector3(20,20,20),
   rotation: Quaternion.Euler(-90, 0, 0)
 }))
 engine.addEntity(nelson);
@@ -137,14 +138,37 @@ phonebox.events.addListener(PhoneBoxEvent, this, (e) => {
 // }))
 // engine.addEntity(street);
 
-const streetlamp = new Entity();
-streetlamp.addComponent(new GLTFShape('models/streetlamp.gltf'));
-streetlamp.addComponent(new Transform({
-  position: new Vector3(10,0,10),
-  scale: new Vector3(0.25,0.25,0.25),
-  rotation: Quaternion.Euler(0, 0, 0)
-}))
-engine.addEntity(streetlamp);
+const lamp_positions = [
+  new Vector3(8, 0.15, 10),
+  new Vector3(11,0.15,12),
+  new Vector3(14, 0.15, 11),
+  new Vector3(17, 0.15, 9),
+  new Vector3(20, 0.15, 7),
+  new Vector3(4, 0.15, 14),
+  new Vector3(8, 0.15, 17),
+  new Vector3(6, 0.15, 20.5),
+  new Vector3(3, 0.15, 21.5),
+  new Vector3(3, 0.15, 28),
+  new Vector3(7, 0.15, 26),
+  new Vector3(11, 0.15, 23.5),
+  new Vector3(15, 0.15, 24.5),
+  new Vector3(20, 0.15, 27.5),
+  new Vector3(20, 0.15, 30),
+  // new Vector3(),
+  // new Vector3(),
+  // new Vector3(),
+  // new Vector3(),
+]
+for (const lamp_position of lamp_positions) {
+  const streetlamp = new Entity();
+  streetlamp.addComponent(new GLTFShape('models/lamppost.gltf'));
+  streetlamp.addComponent(new Transform({
+    position: lamp_position,
+    scale: new Vector3(1,1,1),
+    rotation: Quaternion.Euler(0, 0, 0)
+  }))
+  engine.addEntity(streetlamp);
+}
 
 const pavement = new Entity();
 pavement.addComponent(new GLTFShape('models/pavement.gltf'));
@@ -161,23 +185,23 @@ stateManager.raiseEvent();
 
 blockchainManager.getNFTBalance();
 
-const triggerBox = new utils.TriggerBoxShape(new Vector3(32,2,32), Vector3.Up())
-const triggerEntity = new Entity();
-triggerEntity.addComponent(
-  new utils.TriggerComponent(
-      triggerBox, //shape
-      0, //layer
-      0, //triggeredByLayer
-      undefined, //onTriggerEnter
-      undefined, //onTriggerExit
-      () => { //onCameraEnter
-          log("triggerEntity onCameraEnter!")
+// const triggerBox = new utils.TriggerBoxShape(new Vector3(32,2,32), Vector3.Up())
+// const triggerEntity = new Entity();
+// triggerEntity.addComponent(
+//   new utils.TriggerComponent(
+//       triggerBox, //shape
+//       0, //layer
+//       0, //triggeredByLayer
+//       undefined, //onTriggerEnter
+//       undefined, //onTriggerExit
+//       () => { //onCameraEnter
+//           log("triggerEntity onCameraEnter!")
          
-      },
-      undefined, //onCameraExit
-      true
-  )
-)
+//       },
+//       undefined, //onCameraExit
+//       true
+//   )
+// )
 
 whiteboardClient.onReady.addListener(WhiteBoardEvent, this, () => {
   log('whiteboardClient ready');

@@ -82,7 +82,7 @@ export class CanvasComponent implements OnInit, OnDestroy, IObservableCanvas {
 
   initCanvasElement(htmlCanvas: HTMLCanvasElement): void {
     htmlCanvas.width = htmlCanvas.parentElement.clientWidth;
-    htmlCanvas.height = htmlCanvas.parentElement.clientHeight - 100;
+    htmlCanvas.height = htmlCanvas.parentElement.clientHeight - 250;
     const ctx = htmlCanvas.getContext('2d');
     htmlCanvas.addEventListener('mousedown', (e: MouseEvent ) => {this.startDraw(e); }, false);
     htmlCanvas.addEventListener('mousemove', (e: MouseEvent) => {this.draw(htmlCanvas, ctx, e); }, false);
