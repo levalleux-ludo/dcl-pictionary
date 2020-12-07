@@ -27,6 +27,7 @@ export interface RoundCompletedArgs {
     word: string;
     winnerName: string;
     winnerAddress: string;
+    tokenId: string;
 }
 export interface RoundFailedArgs {
     words: string[];

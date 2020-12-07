@@ -61,8 +61,10 @@ wss.on("connection", (clientWs, request) => {
   const userNameQuery = /(^|&)userName=([^&]*)/.exec(queryParams);
   console.log('userNameQuery', userIdQuery)
   let realm;
+  let fromDCL = false;
   if (userNameQuery) {
     // Connection from the DCL scene
+    fromDCL = true;
     const userName = userNameQuery[2];
     realm = server.connect(ws.realm, userName, userAddress)
   } else {
@@ -82,10 +84,12 @@ wss.on("connection", (clientWs, request) => {
 
   ws.on('close', () => {
     console.log('closed connection with url:' + ws.url);
-    try {
-      server.disconnect(userAddress);
-    } catch (e) {
-      console.error(e);
+    if (fromDCL) {
+      try {
+        server.disconnect(userAddress);
+      } catch (e) {
+        console.error(e);
+      }
     }
   })
 

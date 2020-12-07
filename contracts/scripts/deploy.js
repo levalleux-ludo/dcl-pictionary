@@ -18,7 +18,7 @@ async function main() {
 
     // We get the contracts to deploy
 
-    const [deployer] = await ethers.getSigners();
+    const [deployer, user1] = await ethers.getSigners();
     const balance_before = await deployer.getBalance();
     console.log('Deployer address', await deployer.getAddress(), 'balance', getBalanceAsNumber(balance_before, 18, 4));
 
@@ -42,7 +42,13 @@ async function main() {
     const balance_after = await deployer.getBalance();
     console.log('Paid fees', getBalanceAsNumber(balance_before.sub(balance_after), 18, 4), 'new balance', getBalanceAsNumber(balance_after, 18, 4));
 
+    const user1Addr = await user1.getAddress();
+    let balance1 = await nft.balanceOf('0x6c94bdb560d7044c648efc6f39c9e86e3f66ec2b');
+    console.log('NFT balance', balance1.toString());
+    // await pct.prepareNFT()
 }
+
+
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

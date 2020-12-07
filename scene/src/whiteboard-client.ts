@@ -1,3 +1,4 @@
+import utils from "../node_modules/decentraland-ecs-utils/index"
 import { eState, stateManager } from './StateManager';
 import { getCurrentRealm } from "@decentraland/EnvironmentAPI";
 import { getUserData  } from "@decentraland/Identity"
@@ -21,10 +22,25 @@ class WhiteBoardClient {
     _onRefreshImage: EventManager = new EventManager();
 
     constructor() {
-      getUserData ().then((userData) => {
+      let timer = new Entity();
+      timer.addComponent(new utils.Interval(2000,()=>{
+        try {
+          this.initialize().then(() => {
+            engine.removeEntity(timer);
+          })
+        } catch (e) {
+          log('not ready yet');
+        }
+      }));
+      engine.addEntity(timer);
+
+    }
+
+    public async initialize() {
+      await getUserData ().then((userData) => {
         this.address = userData.userId;
       });
-      getWSUrl().then((url) => {
+      await getWSUrl().then((url) => {
           // connect to ws server
           this.socket = new WebSocket(url);
       // getUserData ().then((userData) => {

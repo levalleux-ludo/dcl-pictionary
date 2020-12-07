@@ -1,3 +1,5 @@
+import utils from "../node_modules/decentraland-ecs-utils/index"
+import { blockchainManager } from './BlockchainManager';
 import { eState, stateManager } from './StateManager';
 import { UIManager } from './UIManager';
 import { UIConnectWhiteboard } from './UIConnectWhiteboard';
@@ -7,11 +9,6 @@ import { WhiteBoard } from './WhiteBoard';
 import { whiteboardClient, WhiteBoardEvent } from './whiteboard-client';
 
 const gameCanvas = new UICanvas();
-
-whiteboardClient.onReady.addListener(WhiteBoardEvent, this, () => {
-  log('whiteboardClient ready');
-})
-
 
 let whiteBoard = new WhiteBoard()
 // box.addComponent(new BoxShape())
@@ -23,10 +20,7 @@ whiteBoard.addComponent(
 )
 // box.addComponent(new Billboard())
 engine.addEntity(whiteBoard)
-whiteboardClient.onRefreshImage.addListener(WhiteBoardEvent, this, (event) => {
-  log('whiteboardClient: onRefreshImage');
-  whiteBoard.refreshImage(event.payload);
-})
+
 
 // const harvey_Nichols = new Entity();
 // harvey_Nichols.addComponent(new GLTFShape('models/Harvey_Nichols.gltf'));
@@ -164,3 +158,31 @@ engine.addEntity(pavement);
 const uiManager = new UIManager(gameCanvas);
 
 stateManager.raiseEvent();
+
+blockchainManager.getNFTBalance();
+
+const triggerBox = new utils.TriggerBoxShape(new Vector3(32,2,32), Vector3.Up())
+const triggerEntity = new Entity();
+triggerEntity.addComponent(
+  new utils.TriggerComponent(
+      triggerBox, //shape
+      0, //layer
+      0, //triggeredByLayer
+      undefined, //onTriggerEnter
+      undefined, //onTriggerExit
+      () => { //onCameraEnter
+          log("triggerEntity onCameraEnter!")
+         
+      },
+      undefined, //onCameraExit
+      true
+  )
+)
+
+whiteboardClient.onReady.addListener(WhiteBoardEvent, this, () => {
+  log('whiteboardClient ready');
+  whiteboardClient.onRefreshImage.addListener(WhiteBoardEvent, this, (event) => {
+    log('whiteboardClient: onRefreshImage');
+    whiteBoard.refreshImage(event.payload);
+  })
+})

@@ -30,8 +30,8 @@ export class UIManager {
             
             switch (event.newState.value) {
                 case eState.NO_DRAWER: {
-                    // DEBUG
-                    this.show(UIs.UICongrats);
+                    // // DEBUG
+                    // this.show(UIs.UICongrats);
                     break;
                 }
                 case eState.DRAWER: {
@@ -50,6 +50,7 @@ export class UIManager {
                     break;
                 }
                 case eState.WINNER: {
+                    (this.uis[UIs.UICongrats] as UICongrats).setTokenId(event.newState.args.tokenId)
                     this.show(UIs.UICongrats);
                     break;
                 }

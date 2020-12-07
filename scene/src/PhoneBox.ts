@@ -4,6 +4,7 @@ import { WHITEBOARD_APP_URL } from './Constants';
 import utils from "../node_modules/decentraland-ecs-utils/index"
 import { PhoneBoxCaption } from "./PhoneBoxCaption";
 import { getAppUrl, getHTTPUrl, parseURL } from "./Utils";
+import { movePlayerTo } from '@decentraland/RestrictedActions';
 
 export enum ePhoneBoxEvents {
     CameraEnter = 'CameraEnter',
@@ -27,29 +28,7 @@ export class PhoneBox extends Entity {
         // create trigger area object, setting size and relative position
         let triggerBox = new utils.TriggerBoxShape(new Vector3(1,2,1), Vector3.Up())
 
-        //create trigger for entity
-        this.addComponent(
-            new utils.TriggerComponent(
-                triggerBox, //shape
-                0, //layer
-                0, //triggeredByLayer
-                () => { //onTriggerEnter
-                    log("triggered onTriggerEnter!")
-                },
-                () => { //onTriggerExit
-                    log("triggered onTriggerExit!")
-                },
-                () => { //onCameraEnter
-                    log("triggered onCameraEnter!")
-                    this.events.fireEvent(new PhoneBoxEvent(ePhoneBoxEvents.CameraEnter, {}))
-                },
-                () => { //onCameraExit
-                    log("triggered onCameraExit!")
-                    this.events.fireEvent(new PhoneBoxEvent(ePhoneBoxEvents.CameraExit, {}))
-                },
-                // true
-            )
-        )
+        
 
         // create the link
         const link = new Entity()
@@ -67,30 +46,9 @@ export class PhoneBox extends Entity {
     
         let locationString = 'Whiteboard App'
 
-        getAppUrl().then((url) => {
-            log('WhiteboardApp url', url);
-            link.addComponent(
-                new OnPointerDown(
-                  async function () {
-                    openExternalURL(url)
-                  },
-                  {
-                    button: ActionButton.PRIMARY,
-                    hoverText: locationString,
-                  }
-                )
-              )
-        })
-
         const qrCode = new Entity();
         qrCode.setParent(this);
         qrCode.addComponent(new PlaneShape());
-        getHTTPUrl('whiteboard', 'qrcode').then((url) => {
-            log('qrcode url', url);
-            const qrCodeMaterial = new Material();
-            qrCodeMaterial.albedoTexture = new Texture(url);
-            qrCode.addComponent(qrCodeMaterial);
-        });
         qrCode.addComponent(new Transform({
             position: new Vector3(0.17,0.38,0),
             scale: new Vector3(0.06,0.05,0.5),
@@ -115,16 +73,11 @@ export class PhoneBox extends Entity {
                     this.phoneBoxCaption.hide();
                     break;
                 }
-                case eState.TIMEDOUT: {
-                    this.phoneBoxCaption.show();
-                    break;
-                }
-                case eState.WINNER: {
-                    this.phoneBoxCaption.show();
-                    break;
-                }
+                case eState.TIMEDOUT:
+                case eState.WINNER:
                 case eState.OTHER_WINNER: {
                     this.phoneBoxCaption.show();
+                    this.movePlayerOut();
                     break;
                 }
                 default: {
@@ -132,5 +85,56 @@ export class PhoneBox extends Entity {
                 }
             }
         })
+
+        //create trigger for entity
+        this.addComponent(
+            new utils.TriggerComponent(
+                triggerBox, //shape
+                0, //layer
+                0, //triggeredByLayer
+                () => { //onTriggerEnter
+                    log("triggered onTriggerEnter!")
+                },
+                () => { //onTriggerExit
+                    log("triggered onTriggerExit!")
+                },
+                () => { //onCameraEnter
+                    log("triggered onCameraEnter!")
+                    getHTTPUrl('whiteboard', 'qrcode').then((url) => {
+                        log('qrcode url', url);
+                        const qrCodeMaterial = new Material();
+                        qrCodeMaterial.albedoTexture = new Texture(url);
+                        qrCode.addComponent(qrCodeMaterial);
+                    });
+                    getAppUrl().then((url) => {
+                        log('WhiteboardApp url', url);
+                        link.addComponent(
+                            new OnPointerDown(
+                              async function () {
+                                openExternalURL(url)
+                              },
+                              {
+                                button: ActionButton.PRIMARY,
+                                hoverText: locationString,
+                              }
+                            )
+                          )
+                    })
+            
+                    this.events.fireEvent(new PhoneBoxEvent(ePhoneBoxEvents.CameraEnter, {}))
+            
+                },
+                () => { //onCameraExit
+                    log("triggered onCameraExit!")
+                    this.events.fireEvent(new PhoneBoxEvent(ePhoneBoxEvents.CameraExit, {}))
+                },
+                // true
+            )
+        )
+    }
+
+    movePlayerOut() {
+        const tr = this.getComponent(Transform);
+        movePlayerTo(tr.position.add(Vector3.Forward().scale(2)), Vector3.Zero());
     }
 }

@@ -1,3 +1,6 @@
+import { pCTContract } from './PCTContract';
+import { nFTContract } from './NFTContract';
+import * as fs from 'fs';
 import { RealmWS } from './index';
 import { EventEmitter } from 'events';
 import { User, eUserEvents } from './user';
@@ -5,7 +8,7 @@ import { Realm, eRealmEvent, WordFoundArgs } from './realm';
 import  * as randomWords from 'random-words';
 import QRCode from 'qrcode'
 import { eMessages, WSMessageArgs, eServerEvents } from './iserver';
-import { WHITEBOARD_APP_URL } from './config';
+import { WHITEBOARD_APP_URL, IMAGE_STORE, IMAGE_SERVER_URL, METADATA_SERVER_URL, METADATA_STORE } from './config';
 
 
 export class Server extends EventEmitter {
@@ -82,7 +85,7 @@ export class Server extends EventEmitter {
             // this.stopDrawing(realmName, drawer.address);
             // this.sendMessage({realm: realmName, message: eMessages.roundFailed, args: {words: realm.words}});
         }, (30000));
-        realm.on(eRealmEvent.wordFound, (wordFoundArgs: WordFoundArgs) => {
+        realm.once(eRealmEvent.wordFound, (wordFoundArgs: WordFoundArgs) => {
             console.log('Server: received wordFound', wordFoundArgs)
             clearTimeout(roundTimer);
             const winnerAddress = wordFoundArgs.winner;
@@ -91,10 +94,19 @@ export class Server extends EventEmitter {
                 throw new Error('Unable to find the user with address ' + winnerAddress);
             }
             this.stopDrawing(realmName, drawer.address);
+            const tokenId = Math.floor(Math.random()*(2**32)).toString();
+            const imagePath = IMAGE_STORE + `/${tokenId}.png`;
+            this.storeImage(realmName, imagePath);
+            const imageUrl = IMAGE_SERVER_URL + `/${tokenId}.png`;
+            const metadataPath = METADATA_STORE + `/${tokenId}.json`;
+            this.storeMetadata(tokenId, new Date(), drawer, imageUrl, wordFoundArgs.word, metadataPath);
+            const tokenURI = METADATA_SERVER_URL + `/${tokenId}.json`;
+            this.prepareNFT(winnerAddress, tokenId, tokenURI);
+            console.log('tokenId', tokenId);
             this.sendMessage({
                 realm: realmName,
                 message: eMessages.roundCompleted,
-                args: {word: wordFoundArgs.word, winnerName: winner?.name as string, winnerAddress: winnerAddress}
+                args: {word: wordFoundArgs.word, winnerName: winner?.name as string, winnerAddress: winnerAddress, tokenId}
             });
         })
         return realm.words;
@@ -130,6 +142,28 @@ export class Server extends EventEmitter {
         return realm.image as string;
     }
 
+    public storeImage(realmName: string, path: string) {
+        console.log('store image into', path);
+        const dataURI = this.getImage(realmName);
+        const regExMatches = dataURI.match('data:(image/.*);base64,(.*)');
+        if (regExMatches) {
+            try {
+                fs.writeFileSync(path, Buffer.from(regExMatches[2] as string, 'base64') );
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
+
+    public storeMetadata(tokenId: string, date: Date, drawer: User, imageUrl: string, word: string, path: string) {
+        const metadata = {
+            name: `DCL-Pictionary-${tokenId}-${word}`,
+            image: imageUrl,
+            description: `Drawn by ${drawer.name} on ${date.toUTCString()}. Word to be guessed: ${word}`
+        }
+        fs.writeFileSync(path, JSON.stringify(metadata));
+    }
+
     public async getQrCode(realmName: string, userId: string): Promise<string> {
         if (!this.realms.has(realmName)) {
             throw new Error('UNable to find the realm with name ' + realmName);
@@ -158,6 +192,14 @@ export class Server extends EventEmitter {
         }
         const realm = this.realms.get(realmName) as Realm;
         return realm.submitWord(word, playerAddress);
+    }
+
+    public async prepareNFT(winnerAddress: string, tokenId: string, tokenURI: string) {
+        const balanceBefore = await nFTContract.balanceOf(winnerAddress);
+        console.log(`NFT balance ${winnerAddress}: ${balanceBefore.toString()}`);
+        await pCTContract.prepareNFT(winnerAddress, tokenId, tokenURI);
+        const balanceAfter = await nFTContract.balanceOf(winnerAddress);
+        console.log(`NFT balance ${winnerAddress}: ${balanceAfter.toString()}`);
     }
 
 }
