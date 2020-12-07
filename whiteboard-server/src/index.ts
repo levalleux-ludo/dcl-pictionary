@@ -227,7 +227,7 @@ app.use('/:room', (req: express.Request, res: express.Response) => {
 });
 
 
-const port = 80;
+const port = 8888;
 app.listen(port, () => {
   console.log('The server is running in port localhost: ', port);
 });

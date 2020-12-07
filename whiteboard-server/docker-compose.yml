@@ -1,9 +1,13 @@
 version: "3.3"
 
 services:
-  ws-broadcast:
+  whiteboard_server:
+    container_name: 'whiteboard_server'
     ports:
-      - "127.0.0.1:13370:13370"
+      - "13370:13370"
+      - "8888:8888"
     build:
       context: .
     restart: always
+    image: levalleuxludo/my_repo:whiteboard_server
+    env_file: .env

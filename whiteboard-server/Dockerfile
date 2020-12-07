@@ -1,22 +1,25 @@
-FROM node:14-alpine
+FROM node:lts-alpine
+RUN apk add --update git
 
-# Create app directory
-WORKDIR /usr/src/app
+ENV USER=whiteboard
+ENV UID=12345
+ENV GID=23456
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package.json ./
-COPY package-lock.json ./
+RUN adduser \
+    --disabled-password \
+    "$USER"
 
-RUN ls
-#RUN npm install
-# If you are building your code for production
-RUN npm ci
+USER whiteboard
+RUN mkdir -p /home/whiteboard/whiteboard-server
+RUN mkdir -p /home/whiteboard/scene/contracts
+COPY --chown=whiteboard lib/scene/contracts /home/whiteboard/scene/contracts
+WORKDIR /home/whiteboard/whiteboard-server
+COPY --chown=whiteboard package.json .
+COPY --chown=whiteboard scripts scripts
+COPY --chown=whiteboard .env.example .
+RUN ls -la
+RUN npm install -y
+COPY --chown=whiteboard . .
 
-# Bundle app source
-COPY . .
-RUN npx typescript
-EXPOSE 13370
-
-CMD [ "node", "dist/index.js" ]
+ENV NODE_ENV production
+CMD npm run start

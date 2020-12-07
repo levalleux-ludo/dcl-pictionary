@@ -12,10 +12,10 @@ if (!process.env.MNEMONIC) {
     throw new Error('Please set your MNEMONIC in a .env file');
 }
   
-export const WHITEBOARD_APP_URL = 'http://192.168.1.11:4200';
-export const IMAGE_STORE = 'E:/temp/NFT/images';
+export const WHITEBOARD_APP_URL = process.env.APP_URL;
+export const IMAGE_STORE = process.env.STORE + '/NFT/images';
 export const IMAGE_SERVER_URL = 'https://pictionary.levalleux.online/NFT/images';
-export const METADATA_STORE = 'E:/temp/NFT';
+export const METADATA_STORE = process.env.STORE + '/NFT';
 export const METADATA_SERVER_URL = 'https://pictionary.levalleux.online/NFT';
 export const WEB3_NETWORK = {
     chainId: 80001,
