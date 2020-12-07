@@ -4,6 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+        "postinstall": "cd whiteboard-app && npm install",
         "build:app": "cd whiteboard-app && npm run build"
     },
     "keywords": [],
