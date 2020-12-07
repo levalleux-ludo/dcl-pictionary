@@ -1,15 +1,15 @@
 {
-  "name": "dcl-pictionary",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@angular/cli": "^11.0.2"
-  }
+    "name": "dcl-pictionary",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build:app": "cd whiteboard-app && npm run build"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@angular/cli": "^11.0.2"
+    }
 }
