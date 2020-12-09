@@ -9,10 +9,12 @@
         "deploy:now": "dcl export && now export",
         "ecs:install": "npm install --save-dev decentraland-ecs@latest",
         "ecs:install-next": "npm install --save-dev decentraland-ecs@next",
-        "extractAbi": "node scripts/extractABI.js"
+        "extractAbi": "node scripts/extractABI.js",
+	"serve": "lite-server --baseDir=export"
     },
     "devDependencies": {
-        "decentraland-ecs": "latest"
+        "decentraland-ecs": "latest",
+        "lite-server": "^2.6.1"
     },
     "dependencies": {
         "decentraland-ecs-utils": "^1.1.9",
