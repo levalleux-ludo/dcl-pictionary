@@ -1,7 +1,10 @@
-<h4>Pick a word in that list and draw it below:
-    <div *ngFor="let word of words">
-        <ul>
+<div>Pick a word in that list and draw it below:
+    <div style="display: block;">
+        <div *ngFor="let word of words" class="word">
+            {{word}}
+            <!-- <ul>
             <li>{{word}}</li>
-        </ul>
+        </ul> -->
+        </div>
     </div>
-</h4>
+</div>

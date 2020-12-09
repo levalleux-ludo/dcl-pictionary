@@ -26,7 +26,7 @@ export class CanvasComponent implements OnInit, OnDestroy, IObservableCanvas {
   point: string;
   id;
   _hasChanged = false;
-  words = [];
+  words = ['unlongmotquiprendelaplace','tata','titi','tutusuperlongmotqui'];
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -81,8 +81,8 @@ export class CanvasComponent implements OnInit, OnDestroy, IObservableCanvas {
   }
 
   initCanvasElement(htmlCanvas: HTMLCanvasElement): void {
-    htmlCanvas.width = htmlCanvas.parentElement.clientWidth;
-    htmlCanvas.height = htmlCanvas.parentElement.clientHeight - 250;
+    htmlCanvas.width = htmlCanvas.parentElement.clientWidth - 4;
+    htmlCanvas.height = htmlCanvas.parentElement.clientHeight - 100;
     const ctx = htmlCanvas.getContext('2d');
     htmlCanvas.addEventListener('mousedown', (e: MouseEvent ) => {this.startDraw(e); }, false);
     htmlCanvas.addEventListener('mousemove', (e: MouseEvent) => {this.draw(htmlCanvas, ctx, e); }, false);
