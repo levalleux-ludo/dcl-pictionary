@@ -30,7 +30,7 @@ export class UICongrats implements IUI {
         claimButton.isPointerBlocker = true
         claimButton.onClick = new OnClick(() => {
             // DO SOMETHING
-            blockchainManager.claimNFT(this.tokenId).then(() => {
+            blockchainManager.claimNFT2(this.tokenId).then(() => {
                 this.setVisible(false);
             });
         })

@@ -20,6 +20,20 @@ class PCTContract {
             }).catch(reject);
         });
     }
+
+    public async metaClaimNFT(tokenId: string, signerAddress: string, functionSignature: string, sigR: string, sigS: string, sigV: string)
+    {
+        await this.contract.deployed();
+        return new Promise((resolve, reject) => {
+            this.contract.metaClaimNFT(tokenId, signerAddress, functionSignature, sigR, sigS, sigV).then((response: any) => {
+                console.log('called metaClaimNFT for token', tokenId);
+                response.wait().then((result: any) => {
+                    console.log('Completed metaClaimNFT for token', tokenId);
+                    resolve();
+                }).catch(reject);
+            }).catch(reject);
+        });
+    }
 }
 
 export const pCTContract = new PCTContract();

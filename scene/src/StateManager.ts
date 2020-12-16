@@ -5,6 +5,7 @@ export enum eState {
     GUESSING, // I am not the drawer and try to guess the word
     TIMEDOUT, // End of the drawing period, nobody found the word
     WINNER, // End of the drawing period, I have found the word
+    END_DRAWING, // End of the drawing period, I am the drawer
     OTHER_WINNER, // End of the drawing period, someone else has found the word
 }
 

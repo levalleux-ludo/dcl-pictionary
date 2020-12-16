@@ -33,7 +33,7 @@ module.exports = {
         hardhat: {},
         ganache: {
             chainId: 1337,
-            url: "http://127.0.0.1:7545",
+            url: "http://192.168.1.11:7545",
             accounts: {
                 count: 10,
                 initialIndex: 0,

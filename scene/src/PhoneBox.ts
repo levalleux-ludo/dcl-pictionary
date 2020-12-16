@@ -73,11 +73,15 @@ export class PhoneBox extends Entity {
                     this.phoneBoxCaption.hide();
                     break;
                 }
+                case eState.END_DRAWING: {
+                    this.phoneBoxCaption.show();
+                    this.movePlayerOut();
+                    break;
+                }
                 case eState.TIMEDOUT:
                 case eState.WINNER:
                 case eState.OTHER_WINNER: {
                     this.phoneBoxCaption.show();
-                    this.movePlayerOut();
                     break;
                 }
                 default: {

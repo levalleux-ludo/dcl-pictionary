@@ -101,13 +101,20 @@ export class Server extends EventEmitter {
             const metadataPath = METADATA_STORE + `/${tokenId}.json`;
             this.storeMetadata(tokenId, new Date(), drawer, imageUrl, wordFoundArgs.word, metadataPath);
             const tokenURI = METADATA_SERVER_URL + `/${tokenId}.json`;
-            this.prepareNFT(winnerAddress, tokenId, tokenURI);
-            console.log('tokenId', tokenId);
-            this.sendMessage({
-                realm: realmName,
-                message: eMessages.roundCompleted,
-                args: {word: wordFoundArgs.word, winnerName: winner?.name as string, winnerAddress: winnerAddress, tokenId}
-            });
+            this.prepareNFT(winnerAddress, tokenId, tokenURI).then(() => {
+                console.log('NFT has been prepared');
+            }).catch(e => {
+                console.error(e);
+            })
+            .finally(() => {
+                console.log('tokenId', tokenId);
+                this.sendMessage({
+                    realm: realmName,
+                    message: eMessages.roundCompleted,
+                    args: {word: wordFoundArgs.word, winnerName: winner?.name as string, winnerAddress: winnerAddress, tokenId}
+                });
+            })
+
         })
         return realm.words;
     }
@@ -192,6 +199,11 @@ export class Server extends EventEmitter {
         }
         const realm = this.realms.get(realmName) as Realm;
         return realm.submitWord(word, playerAddress);
+    }
+
+    public async claimNFT(tokenId: string, signerAddress: string, signature: any) {
+        console.log('call metaClaimNFT with params', tokenId, signerAddress, JSON.stringify(signature));
+        await pCTContract.metaClaimNFT(tokenId, signerAddress, signature.functionSignature, signature.r, signature.s, signature.v);
     }
 
     public async prepareNFT(winnerAddress: string, tokenId: string, tokenURI: string) {

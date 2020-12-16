@@ -4,6 +4,7 @@ import { getCurrentRealm } from "@decentraland/EnvironmentAPI";
 import { getUserData  } from "@decentraland/Identity"
 import { WSMessageArgs, eMessages, ImageUpdatedArgs, RoundStartedArgs, RoundFailedArgs, RoundCompletedArgs, RealmStatus } from '../../whiteboard-server/src/iserver';
 import { getHTTPUrl, getWSUrl } from "./Utils";
+import { WHITEBOARD_HTTP } from "./Constants";
 
 // const WS = 'ws://127.0.0.1:13370';
 
@@ -20,6 +21,7 @@ class WhiteBoardClient {
     address;
     _onReady: EventManager = new EventManager();
     _onRefreshImage: EventManager = new EventManager();
+    _iAmDrawing = false;
 
     constructor() {
       let timer = new Entity();
@@ -91,8 +93,10 @@ class WhiteBoardClient {
             if (data.message === eMessages.roundStarted) {
               const args: RoundStartedArgs = data.args as RoundStartedArgs;
               if (args.drawerAddress === this.address) {
+                this._iAmDrawing = true;
                 stateManager.setState(eState.DRAWING);
               } else {
+                this._iAmDrawing = false;
                 stateManager.setState(eState.GUESSING, {drawerName: args.drawerName});
               }
             }
@@ -100,15 +104,26 @@ class WhiteBoardClient {
             // if message is roundFailed
             if (data.message === eMessages.roundFailed) {
               const args: RoundFailedArgs = data.args as RoundFailedArgs;
-              stateManager.setState(eState.TIMEDOUT, args);
+              if (this._iAmDrawing) {
+                this._iAmDrawing = false;
+                stateManager.setState(eState.END_DRAWING, args);
+              } else {
+                this._iAmDrawing = false;
+                stateManager.setState(eState.TIMEDOUT, args);
+              }
             }
 
             // if message is roundCompleted
             if (data.message === eMessages.roundCompleted) {
               const args: RoundCompletedArgs = data.args as RoundCompletedArgs;
-              if (args.winnerAddress === this.address) {
+              if (this._iAmDrawing) {
+                this._iAmDrawing = false;
+                stateManager.setState(eState.END_DRAWING, args);
+              } else if (args.winnerAddress === this.address) {
+                this._iAmDrawing = false;
                 stateManager.setState(eState.WINNER, args);
               } else {
+                this._iAmDrawing = false;
                 stateManager.setState(eState.OTHER_WINNER, args);
               }
             }
@@ -139,6 +154,25 @@ class WhiteBoardClient {
           }
         })
       });
+    }
+
+    public async claimNFT(tokenId: string, signerAddress: string, signature: any) {
+      const url = `${WHITEBOARD_HTTP}/claim/${tokenId}?signer=${signerAddress}`;
+      return new Promise((resolve, reject) => {
+        fetch(url, {
+          body: JSON.stringify(signature),
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }).then((response) => {
+          if (response.ok) {
+            resolve();
+          } else {
+            reject(response.statusText);
+          }
+        }).catch(reject);
+      })
     }
 
 }

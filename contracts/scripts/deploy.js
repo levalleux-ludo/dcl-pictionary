@@ -29,7 +29,7 @@ async function main() {
     console.log("DCLPictionaryNFT deployed to:", nft.address);
     console.log('Create the PCT contract');
     const DCLPictionary = await ethers.getContractFactory('DCLPictionary');
-    const pct = await DCLPictionary.deploy();
+    const pct = await DCLPictionary.deploy(hre.network.config.chainId);
     await pct.deployed();
     console.log("DCLPictionary deployed to:", pct.address);
     console.log('Transfer NFT contract ownership to PCT contract');

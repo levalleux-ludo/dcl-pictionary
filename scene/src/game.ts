@@ -183,7 +183,6 @@ const uiManager = new UIManager(gameCanvas);
 
 stateManager.raiseEvent();
 
-blockchainManager.getNFTBalance();
 
 // const triggerBox = new utils.TriggerBoxShape(new Vector3(32,2,32), Vector3.Up())
 // const triggerEntity = new Entity();
@@ -205,6 +204,7 @@ blockchainManager.getNFTBalance();
 
 whiteboardClient.onReady.addListener(WhiteBoardEvent, this, () => {
   log('whiteboardClient ready');
+  blockchainManager.getNFTBalance();
   whiteboardClient.onRefreshImage.addListener(WhiteBoardEvent, this, (event) => {
     log('whiteboardClient: onRefreshImage');
     whiteBoard.refreshImage(event.payload);

@@ -54,6 +54,7 @@ export class UIManager {
                     this.show(UIs.UICongrats);
                     break;
                 }
+                case eState.END_DRAWING:
                 case eState.OTHER_WINNER: {
                     (this.uis[UIs.UIOtherWins] as UIOtherWins).setWinnerName(event.newState.args.winnerName, event.newState.args.word)
                     this.show(UIs.UIOtherWins);

@@ -31,3 +31,11 @@ export function parseURL(url: string) {
     const realm = await getCurrentRealm();
     return `${WHITEBOARD_APP_URL}?realm=${realm.displayName}&userId=${userData.userId}&userName=${userData.displayName}`;
   }
+
+  export function padStart(str: string, length: number, char: string): string {
+    let strOut = str;
+    while (strOut.length < length) {
+      strOut = char + strOut;
+    }
+    return strOut;
+  }

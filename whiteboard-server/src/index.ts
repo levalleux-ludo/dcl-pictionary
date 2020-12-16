@@ -1,6 +1,7 @@
 import { Realm } from './realm';
 import * as WebSocket from "ws";
 import cors from 'cors';
+import bodyParser from 'body-parser';
 import express from 'express';
 import { eMessages, eServerEvents, WSMessageArgs, StartDrawingArgs, ImageUpdatedArgs, UpdateImageArgs } from "./iserver";
 import { Server } from './server';
@@ -21,6 +22,8 @@ const options: cors.CorsOptions = {
   preflightContinue: false,
 };
 app.use(cors(options));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 const wss = new WebSocket.Server({ port: 13370 });
 
 // const images = new Map<string, string>();
@@ -214,6 +217,19 @@ app.use('/:room/words', (req: express.Request, res: express.Response) => {
   const room = `${req.params.room}`;
   const drawerAddress = req.query.drawer;
   res.send(server.getWords(room, drawerAddress as string));
+});
+
+app.post('/claim/:tokenId', (req: express.Request, res: express.Response) => {
+  const tokenId = req.params.tokenId;
+  const signerAddress = req.query.signer as string;
+  console.log('claiming token', tokenId, signerAddress, req.body);
+  const signature = req.body;
+  server.claimNFT(tokenId, signerAddress, signature).then(() => {
+    res.send('OK');
+  }).catch((e) => {
+    console.error(e);
+    res.sendStatus(500);
+  })
 });
 
 app.use('/:room', (req: express.Request, res: express.Response) => {
