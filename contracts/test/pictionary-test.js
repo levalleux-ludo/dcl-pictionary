@@ -105,7 +105,7 @@ describe('claimNFT with meta transaction', () => {
         // const chainId = await pct.getChainId();
         console.log('chainId:', chainId.toString());
         const tokenHex = padString(tokenId.toNumber().toString(16), 8, '0');
-        const dataToSign = JSON.parse(`{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"MetaTransaction":[{"name":"nonce","type":"uint256"},{"name":"from","type":"address"},{"name":"functionSignature","type":"bytes"}]},"domain":{"name":"DCL-Pictionary","version":"1","chainId":"${chainId.toString()}","verifyingContract":"${verifyingContract}"},"primaryType":"MetaTransaction","message":{"nonce":"${nonce}","from":"${fromAddress}","functionSignature":"0xfe5c873a00000000000000000000000000000000000000000000000000000000${tokenHex}"}}`);
+        const dataToSign = JSON.parse(`{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"verifyingContract","type":"address"}],"MetaTransaction":[{"name":"nonce","type":"uint256"},{"name":"from","type":"address"},{"name":"functionSignature","type":"bytes"}]},"domain":{"name":"DCL-Pictionary","version":"1","verifyingContract":"${verifyingContract}"},"primaryType":"MetaTransaction","message":{"nonce":"${nonce}","from":"${fromAddress}","functionSignature":"0xfe5c873a00000000000000000000000000000000000000000000000000000000${tokenHex}"}}`);
 
         console.log('dataToSign', dataToSign);
         const digest = TypedDataUtils.encodeDigest(dataToSign)

@@ -21,13 +21,11 @@ class BlockchainManager {
       const domainData: any = {
         name: 'DCL-Pictionary',
         version: '1',
-        chainId: chainId,
         verifyingContract: PCT_CONTRACT
       }
       const domainType = [
         { name: "name", type: "string" },
         { name: "version", type: "string" },
-        { name: "chainId", type: "uint256" },
         { name: "verifyingContract", type: "address" }
       ]
       return [domainData, domainType]
