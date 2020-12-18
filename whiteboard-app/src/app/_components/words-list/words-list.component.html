@@ -1,10 +1,17 @@
-<div>Pick a word in that list and draw it below:
-    <div style="display: block;">
-        <div *ngFor="let word of words" class="word">
-            {{word}}
-            <!-- <ul>
+<div fxLayout="column">
+    <div>Pick a word in that list and draw it below:</div>
+    <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="12px">
+        <div fxLayout="column">
+            <div *ngFor="let word of words" class="word">
+                {{word}}
+                <!-- <ul>
             <li>{{word}}</li>
         </ul> -->
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <button mat-raised-button (click)="changeWords.emit({})" class="btn"><img class="reload" src="assets/reload.png"></button>
+            <div style="font-style: italic; font-size: small;">Change words</div>
         </div>
     </div>
 </div>

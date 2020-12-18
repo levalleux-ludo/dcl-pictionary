@@ -8,7 +8,7 @@ import { Realm, eRealmEvent, WordFoundArgs } from './realm';
 import  * as randomWords from 'random-words';
 import QRCode from 'qrcode'
 import { eMessages, WSMessageArgs, eServerEvents } from './iserver';
-import { WHITEBOARD_APP_URL, IMAGE_STORE, IMAGE_SERVER_URL, METADATA_SERVER_URL, METADATA_STORE } from './config';
+import { WHITEBOARD_APP_URL, IMAGE_STORE, IMAGE_SERVER_URL, METADATA_SERVER_URL, METADATA_STORE, GUESSING_TIMEOUT } from './config';
 
 
 export class Server extends EventEmitter {
@@ -79,43 +79,49 @@ export class Server extends EventEmitter {
         if (!drawer) {
             throw new Error('Unable to find the user with address ' + drawerAddress);
         }
-        this.sendMessage({realm: realmName, message: eMessages.roundStarted, args: { drawerName: drawer.name, drawerAddress , timeoutSec: 30 }});
-        const roundTimer = setTimeout(() => {
-            console.log('timeout expired');
-            // this.stopDrawing(realmName, drawer.address);
-            // this.sendMessage({realm: realmName, message: eMessages.roundFailed, args: {words: realm.words}});
-        }, (30000));
-        realm.once(eRealmEvent.wordFound, (wordFoundArgs: WordFoundArgs) => {
-            console.log('Server: received wordFound', wordFoundArgs)
-            clearTimeout(roundTimer);
-            const winnerAddress = wordFoundArgs.winner;
-            const winner = this.users.get(winnerAddress);
-            if (!winner) {
-                throw new Error('Unable to find the user with address ' + winnerAddress);
-            }
-            this.stopDrawing(realmName, drawer.address);
-            const tokenId = Math.floor(Math.random()*(2**32)).toString();
-            const imagePath = IMAGE_STORE + `/${tokenId}.png`;
-            this.storeImage(realmName, imagePath);
-            const imageUrl = IMAGE_SERVER_URL + `/${tokenId}.png`;
-            const metadataPath = METADATA_STORE + `/${tokenId}.json`;
-            this.storeMetadata(tokenId, new Date(), drawer, imageUrl, wordFoundArgs.word, metadataPath);
-            const tokenURI = METADATA_SERVER_URL + `/${tokenId}.json`;
-            this.prepareNFT(winnerAddress, tokenId, tokenURI).then(() => {
-                console.log('NFT has been prepared');
-            }).catch(e => {
-                console.error(e);
+        if (!realm.timer) {
+            this.sendMessage({realm: realmName, message: eMessages.roundStarted, args: { drawerName: drawer.name, drawerAddress , timeoutSec: GUESSING_TIMEOUT/1000 }});
+            realm.timer = setTimeout(() => {
+                realm.timer = undefined;
+                console.log('timeout expired');
+                this.stopDrawing(realmName, drawer.address);
+                this.sendMessage({realm: realmName, message: eMessages.roundFailed, args: {words: realm.words}});
+            }, GUESSING_TIMEOUT);
+            realm.once(eRealmEvent.wordFound, (wordFoundArgs: WordFoundArgs) => {
+                console.log('Server: received wordFound', wordFoundArgs)
+                if (realm.timer) {
+                    clearTimeout(realm.timer);
+                    realm.timer = undefined;
+                }
+                const winnerAddress = wordFoundArgs.winner;
+                const winner = this.users.get(winnerAddress);
+                if (!winner) {
+                    throw new Error('Unable to find the user with address ' + winnerAddress);
+                }
+                this.stopDrawing(realmName, drawer.address);
+                const tokenId = Math.floor(Math.random()*(2**32)).toString();
+                const imagePath = IMAGE_STORE + `/${tokenId}.png`;
+                this.storeImage(realmName, imagePath);
+                const imageUrl = IMAGE_SERVER_URL + `/${tokenId}.png`;
+                const metadataPath = METADATA_STORE + `/${tokenId}.json`;
+                this.storeMetadata(tokenId, new Date(), drawer, imageUrl, wordFoundArgs.word, metadataPath);
+                const tokenURI = METADATA_SERVER_URL + `/${tokenId}.json`;
+                this.prepareNFT(winnerAddress, tokenId, tokenURI).then(() => {
+                    console.log('NFT has been prepared');
+                }).catch(e => {
+                    console.error(e);
+                })
+                .finally(() => {
+                    console.log('tokenId', tokenId);
+                    this.sendMessage({
+                        realm: realmName,
+                        message: eMessages.roundCompleted,
+                        args: {word: wordFoundArgs.word, winnerName: winner?.name as string, winnerAddress: winnerAddress, tokenId}
+                    });
+                })
+    
             })
-            .finally(() => {
-                console.log('tokenId', tokenId);
-                this.sendMessage({
-                    realm: realmName,
-                    message: eMessages.roundCompleted,
-                    args: {word: wordFoundArgs.word, winnerName: winner?.name as string, winnerAddress: winnerAddress, tokenId}
-                });
-            })
-
-        })
+        }
         return realm.words;
     }
 

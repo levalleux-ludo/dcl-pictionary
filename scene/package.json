@@ -10,13 +10,14 @@
         "ecs:install": "npm install --save-dev decentraland-ecs@latest",
         "ecs:install-next": "npm install --save-dev decentraland-ecs@next",
         "extractAbi": "node scripts/extractABI.js",
-	"serve": "lite-server --baseDir=export"
+        "serve": "lite-server --baseDir=export"
     },
     "devDependencies": {
-        "decentraland-ecs": "latest",
+        "decentraland-ecs": "^6.6.2",
         "lite-server": "^2.6.1"
     },
     "dependencies": {
+        "@dcl/ui-utils": "^1.6.1",
         "decentraland-ecs-utils": "^1.1.9",
         "eth-connect": "^4.0.2"
     }

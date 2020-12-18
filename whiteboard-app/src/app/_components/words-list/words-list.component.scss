@@ -4,3 +4,27 @@
     font-weight: bold;
     // border: solid;
 }
+
+.reload {
+    width: 60px;
+    height: 60px;
+}
+
+.btn {
+    border: none;
+    width: 60px;
+    height: 60px;
+    padding: 2px;
+    margin: 2px;
+    background-color: transparent;
+}
+
+// .btn:hover,
+// .btn:active {
+//     background-color: lightblue;
+//     opacity: 80%;
+// }
+.btn>img {
+    width: 54px;
+    height: 54px;
+}

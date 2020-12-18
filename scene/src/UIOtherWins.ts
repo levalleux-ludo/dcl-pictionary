@@ -41,4 +41,8 @@ export class UIOtherWins implements IUI {
         this.txt.value = `Player '${winnerName}' have found the word '${word}'`
     }
 
+    setNobodyWin() {
+        this.txt.value = `Shame! Nobody found what you've drawn!`;
+    }
+
 }

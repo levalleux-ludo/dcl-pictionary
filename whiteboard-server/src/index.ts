@@ -60,7 +60,7 @@ wss.on("connection", (clientWs, request) => {
     console.error('Unable to get userId from websocket url');
     return;
   }
-  const userAddress = userIdQuery[2];
+  const userAddress = decodeURIComponent(userIdQuery[2]);
   const userNameQuery = /(^|&)userName=([^&]*)/.exec(queryParams);
   console.log('userNameQuery', userIdQuery)
   let realm;
@@ -68,7 +68,7 @@ wss.on("connection", (clientWs, request) => {
   if (userNameQuery) {
     // Connection from the DCL scene
     fromDCL = true;
-    const userName = userNameQuery[2];
+    const userName = decodeURIComponent(userNameQuery[2]);
     realm = server.connect(ws.realm, userName, userAddress)
   } else {
     // Connection from the Whiteboard app

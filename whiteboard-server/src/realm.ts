@@ -15,6 +15,7 @@ export class Realm extends EventEmitter{
     public drawer: User|undefined;
     public words: string[] = [];
     public image: string|undefined;
+    public timer: NodeJS.Timeout|undefined;
     constructor(private _name: string) {
         super();
     }

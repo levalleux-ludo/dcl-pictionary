@@ -1,0 +1,27 @@
+<button mat-button [matMenuTriggerFor]="menuPencil" class="btn"><img src="assets/pencil.png" class="fab-img"></button>
+<button mat-button [matMenuTriggerFor]="menuColor" class="btn"><img src="assets/color.png" class="fab-img"></button>
+<button mat-button (click)="eraser = !eraser" class="btn" [class.eraser-selected]="eraser"><img src="assets/eraser.png" class="fab-img"></button>
+<button mat-button (click)="clearCanvas()" class="btn"><img src="assets/clear.png"></button>
+<mat-menu #menuPencil="matMenu" class="menuPanel">
+    <button mat-menu-item (click)="pencil = 'thick'" class="menu-item" [class.btn-selected]="pencil == 'thick'">
+    <img src="assets/thick.png" width="100">
+  </button>
+    <button mat-menu-item (click)="pencil = 'medium'" class="menu-item" [class.btn-selected]="pencil == 'medium'">
+      <img src="assets/medium.png" width="100">
+    </button>
+    <button mat-menu-item (click)="pencil = 'thin'" class="menu-item" [class.btn-selected]="pencil == 'thin'">
+      <img src="assets/thin.png" width="100">
+    </button>
+</mat-menu>
+<mat-menu #menuColor="matMenu" class="menuPanel">
+    <button mat-menu-item (click)="color = 'black'" class="btn-color" style="background-color: black;" [class.btn-selected]="color == 'black'">
+</button>
+    <button mat-menu-item (click)="color = 'red'" class="btn-color" style="background-color: red;" [class.btn-selected]="color == 'red'">
+  </button>
+    <button mat-menu-item (click)="color = 'blue'" class="btn-color" style="background-color: blue;" [class.btn-selected]="color == 'blue'">
+  </button>
+    <button mat-menu-item (click)="color = 'green'" class="btn-color" style="background-color: green;" [class.btn-selected]="color == 'green'">
+  </button>
+    <button mat-menu-item (click)="color = 'yellow'" class="btn-color" style="background-color: yellow;" [class.btn-selected]="color == 'yellow'">
+  </button>
+</mat-menu>

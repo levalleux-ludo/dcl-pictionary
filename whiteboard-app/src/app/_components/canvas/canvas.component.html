@@ -1,3 +1,7 @@
 <!-- <p>canvas works!</p> -->
-<app-words-list [words]="words"></app-words-list>
-<canvas #canvas></canvas>
+<app-words-list [words]="words" (changeWords)="getWords()"></app-words-list>
+<mat-progress-bar class="progress-bar" *ngIf="timeoutMaxSec > 0" [color]="'primary'" [mode]="'buffer'" [value]="100*timeoutSec/timeoutMaxSec"></mat-progress-bar>
+<div class="canvas-container">
+    <canvas #canvas [class]="(eraser) ? 'cursor-eraser' : 'cursor-' + color"></canvas>
+</div>
+<app-toolbar #toolbox (colorChanged)="color = $event.value" (pencilChanged)="pencil = $event.value" (eraserChanged)="eraser = $event.value" (clear)="clear()"></app-toolbar>

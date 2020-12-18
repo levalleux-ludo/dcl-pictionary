@@ -1,0 +1,70 @@
+:host {
+    position: fixed;
+    bottom: 0px;
+    left: calc(50% - 139px);
+    background-color: white;
+    z-index: 999;
+    border: solid;
+    min-width: 246px;
+    min-height: 64px;
+}
+
+.btn {
+    width: 60px;
+    height: 60px;
+    padding: 2px;
+    margin: 2px;
+}
+
+// .btn:hover {
+//     background-color: lightblue;
+//     opacity: 80%;
+// }
+.btn>img {
+    width: 54px;
+    height: 54px;
+}
+
+.mat-button-wrapper>img {
+    width: 54px;
+    height: 54px;
+}
+
+.fab-img {
+    width: 54px;
+    height: 54px;
+}
+
+.btn-color {
+    margin: 12px;
+    width: calc(100% - 24px);
+    height: 36px;
+    outline-offset: 4px;
+    outline: solid;
+}
+
+.btn-color:hover {
+    color: darkgray;
+}
+
+.btn-selected {
+    color: black;
+}
+
+.menu-item {
+    line-height: 12px;
+    border: solid !important;
+    border-radius: 5px;
+    border-width: 5px;
+}
+
+.menu-item:hover {
+    color: darkgray;
+}
+
+.eraser-selected {
+    outline: solid;
+    outline-offset: 2px;
+    background-color: grey;
+    color: black;
+}

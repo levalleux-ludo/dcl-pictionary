@@ -17,13 +17,13 @@ export function parseURL(url: string) {
   export async function getWSUrl(service?: string, subservice?: string): Promise<string> {
     const userData = await getUserData();
     const realm = await getCurrentRealm();
-    return `${WHITEBOARD_WS}/${service ? service + '/' : ''}${realm.displayName}${subservice ? '/' + subservice : ''}?userId=${userData.userId}&userName=${userData.displayName}`;
+    return `${WHITEBOARD_WS}/${service ? service + '/' : ''}${realm.displayName}${subservice ? '/' + subservice : ''}?userId=${encodeURIComponent(userData.userId)}&userName=${encodeURIComponent(userData.displayName)}`;
   }
 
   export async function getHTTPUrl(service?: string, subservice?: string): Promise<string> {
     const userData = await getUserData();
     const realm = await getCurrentRealm();
-    return `${WHITEBOARD_HTTP}/${service ? service + '/' : ''}${realm.displayName}${subservice ? '/' + subservice : ''}?userId=${userData.userId}&userName=${userData.displayName}`;
+    return `${WHITEBOARD_HTTP}/${service ? service + '/' : ''}${realm.displayName}${subservice ? '/' + subservice : ''}?userId=${encodeURIComponent(userData.userId)}&userName=${encodeURIComponent(userData.displayName)}`;
   }
 
   export async function getAppUrl(): Promise<string> {

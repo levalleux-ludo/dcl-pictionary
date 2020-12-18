@@ -17,9 +17,9 @@ export class StartPageComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.serverConnectService.receive().subscribe(() => {
+    // this.serverConnectService.receive().subscribe(() => {
 
-    })
+    // })
   }
 
   start(): void {

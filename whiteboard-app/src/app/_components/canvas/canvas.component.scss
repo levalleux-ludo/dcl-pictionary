@@ -5,9 +5,47 @@
     // margin: 10px;
 }
 
+.canvas-container {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: calc(100% - 115px);
+    background-color: grey;
+}
+
+.progress-bar {
+    position: absolute;
+    top: 110px;
+    height: 6px;
+}
+
 canvas {
     border-width: 2px;
     border-style: solid;
     border-color: gray;
     border-style: solid;
+}
+
+.cursor-black {
+    cursor: url('../../../assets/pencil_black.png'), auto;
+}
+
+.cursor-red {
+    cursor: url('../../../assets/pencil_red.png'), auto;
+}
+
+.cursor-blue {
+    cursor: url('../../../assets/pencil_blue.png'), auto;
+}
+
+.cursor-green {
+    cursor: url('../../../assets/pencil_green.png'), auto;
+}
+
+.cursor-yellow {
+    cursor: url('../../../assets/pencil_yellow.png'), auto;
+}
+
+.cursor-eraser {
+    cursor: url('../../../assets/cursor_eraser.png'), auto;
 }

@@ -1,3 +1,5 @@
+import * as ui from '../node_modules/@dcl/ui-utils/index'
+
 import { eState, stateManager } from './StateManager';
 import { whiteboardClient } from './whiteboard-client';
 import { IUI } from "./UIManager";
@@ -8,6 +10,7 @@ export class UISubmit implements IUI {
     submitButton: UIImage;
     drawerName = '';
     txtResult: UIText;
+    bar: ui.UIBar;
 
     constructor(private parent: UIShape) {
         const txt = new UIText(parent);
@@ -69,6 +72,10 @@ export class UISubmit implements IUI {
         // submitButton.onClick = new OnClick(() => {
         //     // DO SOMETHING
         // })
+
+        const bar = new ui.UIBar(100);
+        this.bar = bar;
+
         this.setVisible(false);
     }
 
@@ -76,12 +83,17 @@ export class UISubmit implements IUI {
         this.txt.visible = visible;
         this.textInput.visible = visible;
         this.txtResult.visible = visible;
+        visible ? this.bar.show() : this.bar.hide();
         // this.submitButton.visible = (this.textInput.value !== '');
     }
 
     setDrawerName(name: string) {
         this.drawerName = name;
         this.txt.value = `Try to guess what ${this.drawerName} is drawing!`
+    }
+
+    setTimeout(value: number) {
+        this.bar.set(value);
     }
 
 }

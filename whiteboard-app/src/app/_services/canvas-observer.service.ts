@@ -17,9 +17,9 @@ export class CanvasObserverService {
     private serverConnect: ServerConnectService
   ) {
     setInterval(() => {this.capture(); }, PERIOD);
-    this.serverConnect.receive().subscribe((data: WSMessageArgs) => {
-      console.log('receive data:', JSON.stringify(data));
-    });
+    // this.serverConnect.receive().subscribe((data: WSMessageArgs) => {
+    //   console.log('receive data:', JSON.stringify(data));
+    // });
   }
 
   public observe(id: string, canvas: IObservableCanvas): void {
@@ -33,7 +33,7 @@ export class CanvasObserverService {
   }
 
   private capture(): void {
-    console.log('capture canvas image');
+    // console.log('capture canvas image');
     this.observed.forEach((canvas, id) => {
       if (canvas.hasChanged) {
         const img = canvas.getImage();

@@ -1,3 +1,4 @@
+import utils from "../node_modules/decentraland-ecs-utils/index"
 import { UITimedOut } from './UITimedOut';
 import { UISubmit } from './UISubmit';
 import { StateEvent, stateManager, eState } from './StateManager';
@@ -42,6 +43,7 @@ export class UIManager {
                 }
                 case eState.GUESSING: {
                     (this.uis[UIs.UISubmit] as UISubmit).setDrawerName(event.newState.args.drawerName)
+                    this.buildTimer(event.newState.args.timeoutSec)
                     this.show(UIs.UISubmit);
                     break;
                 }
@@ -54,7 +56,11 @@ export class UIManager {
                     this.show(UIs.UICongrats);
                     break;
                 }
-                case eState.END_DRAWING:
+                case eState.END_DRAWING: {
+                    (this.uis[UIs.UIOtherWins] as UIOtherWins).setNobodyWin()
+                    this.show(UIs.UIOtherWins);
+                    break;
+                }
                 case eState.OTHER_WINNER: {
                     (this.uis[UIs.UIOtherWins] as UIOtherWins).setWinnerName(event.newState.args.winnerName, event.newState.args.word)
                     this.show(UIs.UIOtherWins);
@@ -86,4 +92,27 @@ export class UIManager {
             ui.setVisible(true);
         }
     }
+
+    setTimeout(value: number) {
+        const uiSubmit = this.uis[UIs.UISubmit] as UISubmit;
+        if (uiSubmit) {
+            uiSubmit.setTimeout(value);
+        }
+    }
+
+    buildTimer(timeOut: number) {
+        if (timeOut > 0) {
+            let timer = new Entity();
+            let max = timeOut;
+            timer.addComponent(new utils.Interval(1000,()=>{
+                timeOut -= 1;
+                if (timeOut <= 0) {
+                    engine.removeEntity(timer);
+                }
+                this.setTimeout(timeOut / max);
+            }));
+            engine.addEntity(timer);
+        }
+    }
+
 }

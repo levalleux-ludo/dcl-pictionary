@@ -47,6 +47,7 @@ class WhiteBoardClient {
       });
       await getWSUrl().then((url) => {
           // connect to ws server
+          log('websocket url', url);
           this.socket = new WebSocket(url);
       // getUserData ().then((userData) => {
       //   getCurrentRealm().then((realm) => {
@@ -83,7 +84,7 @@ class WhiteBoardClient {
                 if (args.drawer.address === this.address) {
                   stateManager.setState(eState.DRAWING);
                 } else {
-                  stateManager.setState(eState.GUESSING, {drawerName: args.drawer.name});
+                  stateManager.setState(eState.GUESSING, {drawerName: args.drawer.name, timeoutSec: 0});
                 }
                 this._onRefreshImage.fireEvent(new WhiteBoardEvent(args.imageUrl));
               }
@@ -97,7 +98,7 @@ class WhiteBoardClient {
                 stateManager.setState(eState.DRAWING);
               } else {
                 this._iAmDrawing = false;
-                stateManager.setState(eState.GUESSING, {drawerName: args.drawerName});
+                stateManager.setState(eState.GUESSING, {drawerName: args.drawerName, timeoutSec: args.timeoutSec});
               }
             }
 
