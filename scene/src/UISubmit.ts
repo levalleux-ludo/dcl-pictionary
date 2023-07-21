@@ -41,7 +41,6 @@ export class UISubmit implements IUI {
         textInput.vTextAlign = 'center';
         textInput.fontSize = 15;
         textInput.placeholder = "Write a word here"
-        textInput.placeholderColor = Color4.Gray()
         textInput.positionX = "-50px"
         textInput.positionY = "-100px"
         textInput.isPointerBlocker = true

@@ -94,25 +94,26 @@ export class PhoneBox extends Entity {
         this.addComponent(
             new utils.TriggerComponent(
                 triggerBox, //shape
-                0, //layer
-                0, //triggeredByLayer
-                () => { //onTriggerEnter
+                {
+                  layer: 0, //layer
+                  triggeredByLayer: 0, //triggeredByLayer
+                  onTriggerEnter: () => { //onTriggerEnter
                     log("triggered onTriggerEnter!")
                 },
-                () => { //onTriggerExit
+                onTriggerExit: () => { //onTriggerExit
                     log("triggered onTriggerExit!")
                 },
-                () => { //onCameraEnter
+                onCameraEnter: () => { //onCameraEnter
                     log("triggered onCameraEnter!")
                     getHTTPUrl('whiteboard', 'qrcode').then((url) => {
                         log('qrcode url', url);
                         const qrCodeMaterial = new Material();
                         qrCodeMaterial.albedoTexture = new Texture(url);
-                        qrCode.addComponent(qrCodeMaterial);
+                        qrCode.addComponentOrReplace(qrCodeMaterial);
                     });
                     getAppUrl().then((url) => {
                         log('WhiteboardApp url', url);
-                        link.addComponent(
+                        link.addComponentOrReplace(
                             new OnPointerDown(
                               async function () {
                                 openExternalURL(url)
@@ -128,11 +129,12 @@ export class PhoneBox extends Entity {
                     this.events.fireEvent(new PhoneBoxEvent(ePhoneBoxEvents.CameraEnter, {}))
             
                 },
-                () => { //onCameraExit
+                onCameraExit: () => { //onCameraExit
                     log("triggered onCameraExit!")
                     this.events.fireEvent(new PhoneBoxEvent(ePhoneBoxEvents.CameraExit, {}))
                 },
                 // true
+              }
             )
         )
     }

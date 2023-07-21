@@ -13,7 +13,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { ToolbarComponent } from './_components/toolbar/toolbar.component';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatIconModule} from '@angular/material/icon';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import {MatButtonModule} from '@angular/material/button';
 import { EndPageComponent } from './_components/end-page/end-page.component';
 import { TimeoutPageComponent } from './_components/timeout-page/timeout-page.component';
@@ -35,7 +34,6 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     BrowserAnimationsModule,
     HttpClientModule,
     MatMenuModule,
-    FlexLayoutModule,
     MatIconModule,
     MatButtonModule,
     MatProgressBarModule

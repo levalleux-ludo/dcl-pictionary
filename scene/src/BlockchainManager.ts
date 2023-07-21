@@ -1,12 +1,12 @@
 import { NFT_CONTRACT, PCT_CONTRACT, L2_NETWORK } from './Constants';
-import * as EthereumController from "@decentraland/EthereumController";
-import * as EthConnect from "../node_modules/eth-connect/esm";
+import * as EthereumController from "@decentraland/EthereumController"; 
 import { getProvider } from "@decentraland/web3-provider"
+import * as EthConnect from "eth-connect";
 
 import nftAbi from '../contracts/DCLPictionaryNFT';
 import pctAbi from '../contracts/DCLPictionary';
 import { getUserAccount, RPCSendableMessage } from '@decentraland/EthereumController';
-import { BigNumber, Contract, isBigNumber } from '../node_modules/eth-connect/eth-connect';
+import { BigNumber, Contract, isBigNumber } from 'eth-connect';
 import { padStart } from './Utils';
 import { whiteboardClient } from './whiteboard-client';
 

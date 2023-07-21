@@ -10,7 +10,7 @@ class PCTContract {
     }
     public async prepareNFT(winner: string, tokenId: string, tokenURI: string) {
         await this.contract.deployed();
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             this.contract.prepareNFT(winner, tokenId, tokenURI).then((response: any) => {
                 console.log('called prepareNFT for token', tokenId);
                 response.wait().then((result: any) => {
@@ -24,7 +24,7 @@ class PCTContract {
     public async metaClaimNFT(tokenId: string, signerAddress: string, functionSignature: string, sigR: string, sigS: string, sigV: string)
     {
         await this.contract.deployed();
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             this.contract.metaClaimNFT(tokenId, signerAddress, functionSignature, sigR, sigS, sigV).then((response: any) => {
                 console.log('called metaClaimNFT for token', tokenId);
                 response.wait().then((result: any) => {
